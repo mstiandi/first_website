@@ -1,0 +1,420 @@
+/* ===== 基础设定 ===== */
+:root {
+  --bg-dark: #0a0a12;
+  --bg-card: #151525;
+  --bg-nav: rgba(10, 10, 18, 0.92);
+  --gold: #e8a850;
+  --gold-dim: #b8843e;
+  --blue: #4a9eff;
+  --blue-dim: #2d7dd2;
+  --red: #e05555;
+  --text: #d0d0d8;
+  --text-dim: #888899;
+  --border: #252535;
+  --radius: 10px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--gold);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--gold-dim);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ===== 导航栏 ===== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-nav);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.nav-logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 4px;
+}
+
+.nav-links a {
+  display: block;
+  padding: 8px 18px;
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--gold);
+  background: rgba(232, 168, 80, 0.08);
+}
+
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* ===== 英雄区 ===== */
+.hero {
+  position: relative;
+  padding: 100px 24px 80px;
+  text-align: center;
+  background: linear-gradient(135deg, #0a0a18 0%, #12122a 30%, #162020 70%, #0a0a18 100%);
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 40%, rgba(232, 168, 80, 0.06) 0%, transparent 50%),
+              radial-gradient(circle at 70% 60%, rgba(74, 158, 255, 0.05) 0%, transparent 50%);
+  animation: heroGlow 12s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(30px, -20px); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+
+.hero h1 .accent {
+  color: var(--gold);
+}
+
+.hero p {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  margin-bottom: 32px;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+/* ===== 通用区块 ===== */
+.section {
+  padding: 64px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.section-subtitle {
+  color: var(--text-dim);
+  margin-bottom: 36px;
+  font-size: 1rem;
+}
+
+/* ===== 攻略卡片网格 ===== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  transition: border-color 0.3s, transform 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  border-color: var(--gold);
+  transform: translateY(-3px);
+}
+
+.card-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.card h3 {
+  color: #fff;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.card p {
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.card-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--gold);
+}
+
+/* ===== 攻略详情页 ===== */
+.page-header {
+  background: linear-gradient(135deg, #0a0a18, #12122a);
+  border-bottom: 1px solid var(--border);
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.2rem;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: var(--text-dim);
+}
+
+/* 内容卡片 */
+.content-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  margin-bottom: 20px;
+}
+
+.content-card h2 {
+  color: var(--gold);
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.content-card h3 {
+  color: #fff;
+  font-size: 1.05rem;
+  margin: 16px 0 8px;
+}
+
+.content-card p {
+  margin-bottom: 10px;
+}
+
+.content-card ul {
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.content-card li {
+  margin-bottom: 6px;
+  color: var(--text-dim);
+}
+
+/* 标签 */
+.tag {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.tag-fire   { background: rgba(224, 85, 85, 0.15);  color: var(--red); }
+.tag-frost  { background: rgba(74, 158, 255, 0.15);  color: var(--blue); }
+.tag-shock  { background: rgba(180, 180, 60, 0.15);  color: #cccc44; }
+.tag-acid   { background: rgba(100, 200, 100, 0.15); color: #66cc66; }
+.tag-purge  { background: rgba(180, 100, 220, 0.15); color: #b464dc; }
+.tag-plasma { background: rgba(220, 140, 60, 0.15);  color: #dc8c3c; }
+
+/* 武器稀有度 */
+.rarity {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.rarity-common   { background: #3a3a3a; color: #aaa; }
+.rarity-rare     { background: rgba(74, 158, 255, 0.2); color: var(--blue); }
+.rarity-veryrare { background: rgba(180, 100, 220, 0.2); color: #b464dc; }
+.rarity-legendary{ background: rgba(232, 168, 80, 0.2); color: var(--gold); }
+
+/* ===== 机器弱点表 ===== */
+.weakness-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin-top: 8px;
+}
+
+.weakness-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+.weakness-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.weakness-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ===== 页脚 ===== */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.footer a {
+  color: var(--text-dim);
+}
+.footer a:hover {
+  color: var(--gold);
+}
+
+/* ===== 回到顶部 ===== */
+.back-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: border-color 0.2s;
+}
+.back-top:hover {
+  border-color: var(--gold);
+}
+.back-top.visible {
+  display: flex;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .nav-links {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: var(--bg-nav);
+    backdrop-filter: blur(12px);
+    flex-direction: column;
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    display: none;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-toggle {
+    display: block;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+  .hero {
+    padding: 60px 16px 48px;
+  }
+
+  .section {
+    padding: 40px 16px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .weakness-table {
+    font-size: 0.82rem;
+  }
+  .weakness-table th,
+  .weakness-table td {
+    padding: 8px 6px;
+  }
+}

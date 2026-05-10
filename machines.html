@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>机械兽图鉴 — 地平线攻略库</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <span class="nav-logo">&#9767; 地平线攻略库</span>
+  <button class="nav-toggle" id="navToggle" aria-label="菜单">&#9776;</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">首页</a></li>
+    <li><a href="weapons.html">武器攻略</a></li>
+    <li><a href="machines.html" class="active">机械兽攻略</a></li>
+    <li><a href="story.html">剧情攻略</a></li>
+    <li><a href="about.html">关于</a></li>
+  </ul>
+</nav>
+
+<section class="page-header">
+  <h1>&#128376; 机械兽图鉴</h1>
+  <p>弱点部位 · 元素克制 · 战斗策略</p>
+</section>
+
+<section class="section">
+
+  <!-- 侦察类 -->
+  <div class="content-card">
+    <h2>侦察类</h2>
+
+    <h3>守视者 Watcher</h3>
+    <p>最常见的侦察型机械兽，形似小型恐龙，眼部发蓝光。单独行动或伴随兽群，发现敌人后会发出警报召唤同伴。</p>
+    <p><strong>弱点：</strong>眼睛是唯一弱点（黄色高亮），一箭命中直接击杀。潜行暗杀也可一击毙命。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-fire">火焰+</span></p>
+    <p><strong>策略：</strong>优先级最高的目标——被发现前先暗杀所有守视者，否则它会叫来整个兽群。</p>
+
+    <h3>红眼守视者 Red-Eye Watcher</h3>
+    <p>守视者的强化版本，血量和伤害提升，眼部有装甲保护。</p>
+    <p><strong>策略：</strong>先射掉眼部装甲，再射眼睛。或者电击麻痹后近战击杀。</p>
+  </div>
+
+  <!-- 马类 -->
+  <div class="content-card">
+    <h2>骑乘类</h2>
+
+    <h3>昂步者 Strider</h3>
+    <p>马型机械兽，性情温和，可被覆盖后成为坐骑。遇到威胁时用后蹄踢击。</p>
+    <p><strong>可覆盖：</strong>是（需要覆盖指令）</p>
+    <p><strong>策略：</strong>潜行靠近覆盖，是最早可获得的坐骑。火焰箭点燃背后的绿黄色燃料罐。</p>
+
+    <h3>冲锋兽 Charger</h3>
+    <p>公羊型机械兽。角部攻击力极高，会蓄力冲锋。西之绝境中的早期坐骑选择。</p>
+    <p><strong>弱点：</strong>后背的燃料罐。<span class="tag tag-fire">火焰+</span></p>
+    <p><strong>策略：</strong>侧向闪避冲锋，射爆背后燃料罐造成大范围爆炸。</p>
+  </div>
+
+  <!-- 中型战斗类 -->
+  <div class="content-card">
+    <h2>中型战斗机械兽</h2>
+
+    <h3>锯齿兽 Sawtooth</h3>
+    <p>剑齿虎外形的肉食机械兽，高攻高速，玩家遇到的第一个真正有威胁的敌人。会潜伏突袭。</p>
+    <p><strong>弱点部位：</strong>腹部火焰罐（黄绿色）、下颚的撕裂器。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-fire">火焰++</span></p>
+    <p><strong>策略：</strong>火焰箭射爆腹部燃料罐触发大爆炸，然后神射弓爆头。别让它近身。</p>
+
+    <h3>破坏者 Scrapper</h3>
+    <p>鬣狗型机械兽，成群行动，会回收被杀机械的零件。背后有雷达天线。</p>
+    <p><strong>弱点：</strong>背后的电池组。<span class="tag tag-shock">电击++</span></p>
+    <p><strong>策略：</strong>电击箭命中电池直接爆炸。优先清群，别被围住。</p>
+
+    <h3>长腿兽 Longleg</h3>
+    <p>鸵鸟型机械兽，速度快，会发出音波震荡攻击，范围大且能击倒玩家。</p>
+    <p><strong>弱点：</strong>胸部的震荡发生器。<span class="tag tag-frost">冰霜+</span></p>
+    <p><strong>策略：</strong>冰霜箭冻住后狙胸。远离音波范围，音波蓄力时有明显前摇。</p>
+
+    <h3>潜行者 Stalker</h3>
+    <p>黑豹型机械兽，会光学隐形，在丛林中极度危险。尾部发射信号弹，背部有地雷发射器。</p>
+    <p><strong>弱点：</strong>背部的隐形装置和地雷发射器。<span class="tag tag-shock">电击++</span></p>
+    <p><strong>策略：</strong>用 Focus 持续扫描发现隐身的潜行者。电击箭卸掉隐形装置和地雷发射器后就废了。注意脚下的地雷。</p>
+  </div>
+
+  <!-- 大型战斗类 -->
+  <div class="content-card">
+    <h2>大型战斗机械兽</h2>
+
+    <h3>雷霆牙 Thunderjaw</h3>
+    <p>暴龙型终极杀戮机器。全身武器：头部机枪、嘴部激光、背部圆盘发射器、尾部横扫。地平线系列的标志性 Boss。</p>
+    <p><strong>弱点部位：</strong>背部两侧的圆盘发射器（撕裂箭打下来后可以自己捡起来用！）、心脏（侧面装甲下）、头部数据处理单元。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-frost">冰霜+</span> <span class="tag tag-shock">电击+</span></p>
+    <p><strong>推荐策略：</strong></p>
+    <ul>
+      <li>开场用撕裂箭拆掉两侧圆盘发射器（共 2 个），捡起来用——这是对它最强的武器。</li>
+      <li>绳索发射器捆住，战弓射冰霜箭冻住。</li>
+      <li>冻住后用圆盘发射器或爆破弹弓轰心脏——双倍伤害。</li>
+      <li>走位注意避开正面，它的激光和机枪能秒人。</li>
+    </ul>
+    <p><strong>掉落：</strong>雷霆牙之心（传奇改造材料）、大型机械核心。</p>
+
+    <h3>风暴鸟 Stormbird</h3>
+    <p>巨鹰型飞行机械兽，空中霸主。俯冲攻击附带电击、翅膀扇出风暴、尾部释放闪电炸弹。</p>
+    <p><strong>弱点部位：</strong>胸部的电击发生器、两侧翅膀的推进器。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-frost">冰霜++</span></p>
+    <p><strong>策略：</strong>绳索发射器把它拉回地面是关键。冻住后集中攻击胸部电击发生器。带上电击抗性护甲。</p>
+
+    <h3>碎石兽 Rockbreaker</h3>
+    <p>鼹鼠型巨型机械兽，大部分时间潜行地下，靠震动感应定位玩家。钻出地面时喷射岩石。</p>
+    <p><strong>弱点：</strong>腹部燃料袋（钻出地面时暴露）、背部的挖掘爪。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-frost">冰霜+</span></p>
+    <p><strong>策略：</strong>移动到岩石上（它感应不到石头上的人），等它钻出来射腹部。或者用绊索在它必经路线布雷。不要在沙地上长时间停留。</p>
+
+    <h3>火焰巨熊 Fireclaw</h3>
+    <p>巨型熊型机械兽（DLC 冰冻荒原），全身覆盖厚甲，近战极其残忍。胸口和肩膀喷射火焰。</p>
+    <p><strong>弱点：</strong>胸口的火焰核心（喷射时暴露）、背部肩甲下的冷却罐。</p>
+    <p><strong>元素弱点：</strong><span class="tag tag-frost">冰霜+++</span>（最强冰霜克制）</p>
+    <p><strong>策略：</strong>这是游戏最强敌人之一。冰霜箭冻住后绕后打冷却罐。别站正面。带足药品。</p>
+  </div>
+
+  <!-- 元素克制速查表 -->
+  <div class="content-card">
+    <h2>元素克制速查表</h2>
+    <table class="weakness-table">
+      <thead>
+        <tr><th>机械兽</th><th>火</th><th>冰</th><th>电</th><th>酸</th><th>特殊提示</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>守视者</td><td>&#9733;</td><td>-</td><td>-</td><td>-</td><td>射眼一击必杀</td></tr>
+        <tr><td>锯齿兽</td><td>&#9733;&#9733;</td><td>-</td><td>-</td><td>-</td><td>射爆腹部火焰罐</td></tr>
+        <tr><td>破坏者</td><td>-</td><td>-</td><td>&#9733;&#9733;</td><td>-</td><td>电后背电池组</td></tr>
+        <tr><td>长腿兽</td><td>-</td><td>&#9733;</td><td>-</td><td>-</td><td>冻住后狙胸</td></tr>
+        <tr><td>潜行者</td><td>-</td><td>-</td><td>&#9733;&#9733;</td><td>-</td><td>电击卸隐形和地雷</td></tr>
+        <tr><td>雷霆牙</td><td>-</td><td>&#9733;</td><td>&#9733;</td><td>-</td><td>撕裂箭拆圆盘发射器</td></tr>
+        <tr><td>风暴鸟</td><td>-</td><td>&#9733;&#9733;</td><td>-</td><td>-</td><td>绳索拉到地面再打</td></tr>
+        <tr><td>碎石兽</td><td>-</td><td>&#9733;</td><td>-</td><td>-</td><td>站岩石上躲避震感</td></tr>
+        <tr><td>火焰巨熊</td><td>-</td><td>&#9733;&#9733;&#9733;</td><td>-</td><td>-</td><td>冰霜后绕后打罐</td></tr>
+        <tr><td>滑翔者</td><td>&#9733;</td><td>-</td><td>-</td><td>-</td><td>射翅膀让它坠地</td></tr>
+        <tr><td>壳行者</td><td>-</td><td>-</td><td>&#9733;&#9733;</td><td>-</td><td>电击掀壳后打内部</td></tr>
+        <tr><td>河马兽</td><td>-</td><td>&#9733;</td><td>-</td><td>&#9733;</td><td>射嘴里和背上的罐</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>本站为粉丝自制攻略，与 Guerrilla Games / Sony 无关联。</p>
+</footer>
+
+<button class="back-top" id="backTop" aria-label="回到顶部">&#8593;</button>
+<script src="js/main.js"></script>
+</body>
+</html>
