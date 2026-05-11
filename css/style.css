@@ -23,6 +23,9 @@ html, body {
    =========================== */
 .scene-forest {
   background: linear-gradient(180deg, #071a0a 0%, #0e2e14 25%, #152a10 50%, #0a1808 80%, #030803 100%);
+  background-image: url('../images/forest.avif');
+  background-size: cover;
+  background-position: center;
 }
 .forest-layers { position: absolute; inset: 0; }
 .forest-layer { position: absolute; bottom: 0; left: 0; right: 0; }
@@ -73,6 +76,9 @@ html, body {
    =========================== */
 .scene-ocean {
   background: linear-gradient(180deg, #001122 0%, #001633 15%, #002955 40%, #001a3a 70%, #000a18 100%);
+  background-image: url('../images/ocean.avif');
+  background-size: cover;
+  background-position: center;
 }
 .scene-ocean .light-ray {
   position: absolute; top: -15%;
@@ -161,6 +167,9 @@ html, body {
    =========================== */
 .scene-stars {
   background: radial-gradient(ellipse at 50% 50%, #05051a 0%, #020210 100%);
+  background-image: url('../images/aurora.avif');
+  background-size: cover;
+  background-position: center;
 }
 #auroraCanvas {
   position: absolute; inset: 0;
@@ -191,6 +200,9 @@ html, body {
    =========================== */
 .scene-rain {
   background: #080810;
+  background-image: url('../images/rain.avif');
+  background-size: cover;
+  background-position: center;
 }
 .rain-bg { position: absolute; inset: 0; overflow: hidden; }
 .rain-bg .drop {
@@ -209,14 +221,14 @@ html, body {
 }
 .window-mullion {
   position: absolute;
-  background: #1a1a22;
+  background: rgba(10,10,18,0.55);
 }
-.v-left  { left: 0; top: 0; bottom: 0; width: 4px; }
-.v-right { right: 0; top: 0; bottom: 0; width: 4px; }
-.h-mid   { left: 0; right: 0; top: 50%; height: 3px; }
+.v-left  { left: 0; top: 0; bottom: 0; width: 3px; }
+.v-right { right: 0; top: 0; bottom: 0; width: 3px; }
+.h-mid   { left: 0; right: 0; top: 50%; height: 2px; }
 .window-sill {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 6px;
-  background: #1e1e28;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 5px;
+  background: rgba(10,10,18,0.6);
 }
 .window-glass {
   position: absolute; inset: 0;
