@@ -10,6 +10,11 @@
 
 <!-- 森林 -->
 <div class="scene scene-forest active" id="scene-forest">
+  <div class="forest-layers">
+    <div class="forest-layer layer-back"></div>
+    <div class="forest-layer layer-mid"></div>
+    <div class="forest-layer layer-front"></div>
+  </div>
   <div class="particles" id="particles-forest"></div>
 </div>
 
@@ -17,16 +22,27 @@
 <div class="scene scene-ocean" id="scene-ocean">
   <div class="light-rays" id="rays-ocean"></div>
   <div class="bubbles" id="bubbles-ocean"></div>
+  <div class="ocean-fish" id="ocean-fish"></div>
+  <div class="ocean-whale" id="ocean-whale"></div>
 </div>
 
-<!-- 星空 -->
+<!-- 星空极光 -->
 <div class="scene scene-stars" id="scene-stars">
+  <canvas id="auroraCanvas"></canvas>
   <div class="starfield" id="starfield"></div>
+  <div class="mountains"></div>
 </div>
 
 <!-- 雨夜 -->
 <div class="scene scene-rain" id="scene-rain">
-  <div class="rainfield" id="rainfield"></div>
+  <div class="window-frame">
+    <div class="window-glass" id="windowGlass"></div>
+    <div class="window-sill"></div>
+    <div class="window-mullion v-left"></div>
+    <div class="window-mullion v-right"></div>
+    <div class="window-mullion h-mid"></div>
+  </div>
+  <div class="rain-bg" id="rainBg"></div>
 </div>
 
 <!-- 中央内容 -->
@@ -37,14 +53,19 @@
   <div class="breath-circle"></div>
 </div>
 
-<!-- 声音开关 -->
-<button class="sound-toggle on" id="soundToggle" title="声音">&#9834;</button>
+<!-- 控制器 -->
+<div class="controls">
+  <button class="ctrl-btn sound-toggle on" id="soundToggle" title="声音开关">&#9834;</button>
+  <div class="volume-slider-wrap" id="volumeWrap">
+    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="30" title="音量">
+  </div>
+</div>
 
 <!-- 场景切换 -->
 <div class="scene-switcher">
   <button class="scene-btn active" data-scene="forest" title="森林">&#127795;</button>
   <button class="scene-btn" data-scene="ocean" title="深海">&#127754;</button>
-  <button class="scene-btn" data-scene="stars" title="星空">&#127756;</button>
+  <button class="scene-btn" data-scene="stars" title="极光">&#127756;</button>
   <button class="scene-btn" data-scene="rain" title="雨夜">&#127783;</button>
 </div>
 
