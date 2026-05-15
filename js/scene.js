@@ -7,7 +7,7 @@ var MainScene = (function () {
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
 
   var maxRotRight = 15 * Math.PI / 180;
-  var maxRotLeft  = -65 * Math.PI / 180;
+  var maxRotLeft  = -35 * Math.PI / 180;
 
   function start() {
     var oldCanvases = document.querySelectorAll('canvas');
@@ -50,7 +50,7 @@ var MainScene = (function () {
     var radius = 8;
     var height = 7;
     var videoArc = 90 * Math.PI / 180;    // 视频面板 90°
-    var blackArc = 50 * Math.PI / 180;     // 左侧黑面板 50°
+    var blackArc = 35 * Math.PI / 180;     // 左侧黑面板 35°
 
     // 视频面板居中
     var thetaStart = Math.PI - videoArc / 2;
