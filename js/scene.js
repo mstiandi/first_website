@@ -63,7 +63,6 @@ var MainScene = (function () {
     video.muted = true;
     video.playsInline = true;
     video.style.display = 'none';
-    video.style.transform = 'scaleX(-1)';  // 圆柱内表面镜像修正
     document.body.appendChild(video);
     video.play();
 
@@ -72,8 +71,13 @@ var MainScene = (function () {
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
 
-    var videoMat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
     var videoGeo = new THREE.CylinderGeometry(radius, radius, height, 48, 1, true, thetaStart, videoArc);
+    // 翻转 UV 修正圆柱内表面镜像
+    var uv = videoGeo.attributes.uv;
+    for (var i = 0; i < uv.count; i++) {
+      uv.setX(i, 1 - uv.getX(i));
+    }
+    var videoMat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
     scene.add(new THREE.Mesh(videoGeo, videoMat));
 
     // ── 左侧黑面板 ──
