@@ -98,7 +98,7 @@ var MainScene = (function () {
     if (Math.abs(currentRotation - targetRotation) < 0.0002) {
       currentRotation = targetRotation;
     }
-    camera.rotation.y = -currentRotation;
+    camera.rotation.y = currentRotation;
     renderer.render(scene, camera);
   }
 
