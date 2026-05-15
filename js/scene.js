@@ -89,31 +89,7 @@ var MainScene = (function () {
     scene.add(new THREE.Mesh(blackGeo, blackMat));
 
     // ── 天空顶盖（双击仰天时可见）──
-    var skyCanvas = document.createElement('canvas');
-    skyCanvas.width = 512;
-    skyCanvas.height = 512;
-    var ctx = skyCanvas.getContext('2d');
-
-    // 天空渐变
-    var grad = ctx.createLinearGradient(0, 0, 0, 512);
-    grad.addColorStop(0, '#2e6ab0');
-    grad.addColorStop(0.35, '#5b9fd4');
-    grad.addColorStop(0.65, '#a3d5f0');
-    grad.addColorStop(1, '#dceef8');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 512, 512);
-
-    // 云朵
-    ctx.fillStyle = 'rgba(255,255,255,0.35)';
-    drawCloud(ctx, 120, 180, 80);
-    drawCloud(ctx, 350, 100, 60);
-    drawCloud(ctx, 260, 280, 70);
-    drawCloud(ctx, 80, 340, 55);
-    ctx.fillStyle = 'rgba(255,255,255,0.22)';
-    drawCloud(ctx, 400, 320, 90);
-    drawCloud(ctx, 180, 400, 65);
-
-    var skyTex = new THREE.CanvasTexture(skyCanvas);
+    var skyTex = new THREE.TextureLoader().load('images/蓝天.png');
     skyTex.colorSpace = THREE.SRGBColorSpace;
     var skyGeo = new THREE.CircleGeometry(radius, 48);
     var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.DoubleSide });
@@ -121,14 +97,6 @@ var MainScene = (function () {
     skyMesh.position.y = height / 2;
     skyMesh.rotation.x = -Math.PI / 2;
     scene.add(skyMesh);
-  }
-
-  function drawCloud(ctx, cx, cy, r) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.arc(cx + r * 0.6, cy - r * 0.3, r * 0.7, 0, Math.PI * 2);
-    ctx.arc(cx - r * 0.5, cy + r * 0.2, r * 0.65, 0, Math.PI * 2);
-    ctx.fill();
   }
 
   function loop() {
