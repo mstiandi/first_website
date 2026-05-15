@@ -9,9 +9,9 @@ var MainScene = (function () {
 
   // ── 素材配置（替换视频/图片改这里就行）──
   var panels = [
-    { src: 'images/True海崖.png', type: 'image' },  // 左：崖壁
-    { src: 'images/True海崖.png', type: 'image' },  // 中：海崖（后续换视频）
-    { src: 'images/true海草坪.png',  type: 'image' }   // 右：草坪
+    { src: 'videos/left.mp4',   type: 'video' },
+    { src: 'videos/middle.mp4', type: 'video' },
+    { src: 'videos/right.mp4',  type: 'video' }
   ];
 
   // 如果有视频可用，自动替换对应面板
