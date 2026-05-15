@@ -1,10 +1,12 @@
-/* 主场景 — 单视频面板 + 左侧黑面板（聊天入口） */
+/* 主场景 — 单视频面板 + 左侧黑面板（聊天入口）+ 双击仰天 */
 var MainScene = (function () {
   var scene, camera, renderer;
   var currentRotation = 0, targetRotation = 0;
+  var currentXRotation = 0, targetXRotation = 0;
   var animId = null;
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
+  var isLying = false;
 
   var maxRotRight = 30 * Math.PI / 180;
   var maxRotLeft  = -30 * Math.PI / 180;
@@ -33,10 +35,11 @@ var MainScene = (function () {
     renderer.domElement.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
     window.addEventListener('resize', onResize);
+    window.addEventListener('dblclick', onDoubleClick);
 
     var hint = document.createElement('div');
     hint.id = 'hint-text';
-    hint.textContent = '移动鼠标看风景  |  左拖进入对话';
+    hint.textContent = '移动鼠标看风景 | 双击仰天躺下 | 左拖进入对话';
     document.body.appendChild(hint);
     setTimeout(function () { hint.style.opacity = '0'; }, 8000);
 
@@ -72,7 +75,6 @@ var MainScene = (function () {
     tex.magFilter = THREE.LinearFilter;
 
     var videoGeo = new THREE.CylinderGeometry(radius, radius, height, 48, 1, true, thetaStart, videoArc);
-    // 翻转 UV 修正圆柱内表面镜像
     var uv = videoGeo.attributes.uv;
     for (var i = 0; i < uv.count; i++) {
       uv.setX(i, 1 - uv.getX(i));
@@ -85,6 +87,48 @@ var MainScene = (function () {
     var blackMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide });
     var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 20, 1, true, blackStart, blackArc);
     scene.add(new THREE.Mesh(blackGeo, blackMat));
+
+    // ── 天空顶盖（双击仰天时可见）──
+    var skyCanvas = document.createElement('canvas');
+    skyCanvas.width = 512;
+    skyCanvas.height = 512;
+    var ctx = skyCanvas.getContext('2d');
+
+    // 天空渐变
+    var grad = ctx.createLinearGradient(0, 0, 0, 512);
+    grad.addColorStop(0, '#2e6ab0');
+    grad.addColorStop(0.35, '#5b9fd4');
+    grad.addColorStop(0.65, '#a3d5f0');
+    grad.addColorStop(1, '#dceef8');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // 云朵
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    drawCloud(ctx, 120, 180, 80);
+    drawCloud(ctx, 350, 100, 60);
+    drawCloud(ctx, 260, 280, 70);
+    drawCloud(ctx, 80, 340, 55);
+    ctx.fillStyle = 'rgba(255,255,255,0.22)';
+    drawCloud(ctx, 400, 320, 90);
+    drawCloud(ctx, 180, 400, 65);
+
+    var skyTex = new THREE.CanvasTexture(skyCanvas);
+    skyTex.colorSpace = THREE.SRGBColorSpace;
+    var skyGeo = new THREE.CircleGeometry(radius, 48);
+    var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.DoubleSide });
+    var skyMesh = new THREE.Mesh(skyGeo, skyMat);
+    skyMesh.position.y = height / 2;
+    skyMesh.rotation.x = -Math.PI / 2;
+    scene.add(skyMesh);
+  }
+
+  function drawCloud(ctx, cx, cy, r) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.arc(cx + r * 0.6, cy - r * 0.3, r * 0.7, 0, Math.PI * 2);
+    ctx.arc(cx - r * 0.5, cy + r * 0.2, r * 0.65, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   function loop() {
@@ -103,8 +147,21 @@ var MainScene = (function () {
     if (Math.abs(currentRotation - targetRotation) < 0.0002) {
       currentRotation = targetRotation;
     }
+
+    currentXRotation += (targetXRotation - currentXRotation) * 0.05;
+    if (Math.abs(currentXRotation - targetXRotation) < 0.0005) {
+      currentXRotation = targetXRotation;
+    }
+
     camera.rotation.y = currentRotation;
+    camera.rotation.x = currentXRotation;
     renderer.render(scene, camera);
+  }
+
+  function onDoubleClick(e) {
+    if (ChatSystem.isActive()) return;
+    isLying = !isLying;
+    targetXRotation = isLying ? -Math.PI / 2 : 0;
   }
 
   function onMouseMove(e) {
