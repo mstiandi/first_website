@@ -1,15 +1,16 @@
-/* 主场景 — Three.js 圆柱全景：VideoTexture 直贴，零 shader，零 canvas */
+/* 主场景 — Three.js 圆柱全景 + 左侧黑面板（聊天入口） */
 var MainScene = (function () {
   var scene, camera, renderer;
   var currentRotation = 0, targetRotation = 0;
-  var minRot = -75 * Math.PI / 180, maxRot = 75 * Math.PI / 180;
   var animId = null;
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
-  var videoTextures = [];
+
+  // 非对称旋转范围：右侧到视频边缘即停，左侧可看到黑面板
+  var maxRotRight = 44 * Math.PI / 180;  // 右边界 = 视频边缘 - 半FOV
+  var maxRotLeft  = -84 * Math.PI / 180;  // 左边界 = 黑面板边缘
 
   function start() {
-    // 清理入场 canvas
     var oldCanvases = document.querySelectorAll('canvas');
     oldCanvases.forEach(function (c) { c.remove(); });
 
@@ -27,7 +28,7 @@ var MainScene = (function () {
     renderer.domElement.style.left = '0';
     document.body.appendChild(renderer.domElement);
 
-    buildCylinderWithVideos();
+    buildScene();
 
     window.addEventListener('mousemove', onMouseMove);
     renderer.domElement.addEventListener('mousedown', onMouseDown);
@@ -46,15 +47,16 @@ var MainScene = (function () {
     loop();
   }
 
-  function buildCylinderWithVideos() {
+  function buildScene() {
     var radius = 14;
     var height = 7;
-    var arcAngle = 50 * Math.PI / 180; // each panel = 50°
-    var totalArc = 150 * Math.PI / 180; // full visible arc
-    var thetaStart = Math.PI - totalArc / 2;
+    var panelAngle = 50 * Math.PI / 180;   // 每个视频面板 50°
+    var blackAngle = 40 * Math.PI / 180;    // 左侧黑面板 40°
+    var totalArc = 150 * Math.PI / 180;     // 3个视频 = 150°
+    var thetaStart = Math.PI - totalArc / 2; // 视频区起点
 
+    // ── 视频面板（3段）──
     var videoFiles = ['videos/right.mp4', 'videos/middle.mp4', 'videos/left.mp4'];
-
     videoFiles.forEach(function (file, i) {
       var video = document.createElement('video');
       video.src = file;
@@ -62,7 +64,6 @@ var MainScene = (function () {
       video.loop = true;
       video.muted = true;
       video.playsInline = true;
-      video.crossOrigin = 'anonymous';
       video.style.display = 'none';
       document.body.appendChild(video);
       video.play();
@@ -71,27 +72,31 @@ var MainScene = (function () {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
-      videoTextures.push(tex);
 
-      var material = new THREE.MeshBasicMaterial({
-        map: tex,
-        side: THREE.BackSide
-      });
-
-      var segStart = thetaStart + i * arcAngle;
-      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, arcAngle);
-
-      var segment = new THREE.Mesh(geometry, material);
-      scene.add(segment);
+      var material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
+      var segStart = thetaStart + i * panelAngle;
+      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, panelAngle);
+      scene.add(new THREE.Mesh(geometry, material));
     });
+
+    // ── 左侧黑面板（聊天入口）──
+    var blackStart = thetaStart - blackAngle;
+    var blackMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide });
+    var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 16, 1, true, blackStart, blackAngle);
+    scene.add(new THREE.Mesh(blackGeo, blackMat));
   }
 
   function loop() {
     animId = requestAnimationFrame(loop);
 
     if (!dragActive) {
-      targetRotation = (mouseX - 0.5) * 2 * maxRot;
-      targetRotation = Math.max(minRot, Math.min(maxRot, targetRotation));
+      // 非对称映射：右半屏→右侧角度，左半屏→左侧角度
+      if (mouseX > 0.5) {
+        targetRotation = (mouseX - 0.5) * 2 * maxRotRight;
+      } else {
+        targetRotation = (mouseX - 0.5) * 2 * (-maxRotLeft);
+      }
+      targetRotation = Math.max(maxRotLeft, Math.min(maxRotRight, targetRotation));
     }
 
     currentRotation += (targetRotation - currentRotation) * 0.06;
@@ -99,7 +104,6 @@ var MainScene = (function () {
       currentRotation = targetRotation;
     }
     camera.rotation.y = currentRotation;
-
     renderer.render(scene, camera);
   }
 
