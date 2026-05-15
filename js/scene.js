@@ -1,4 +1,4 @@
-/* 主场景 — 双视频面板 + 左侧黑面板（聊天入口） */
+/* 主场景 — 单视频面板 + 左侧黑面板（聊天入口） */
 var MainScene = (function () {
   var scene, camera, renderer;
   var currentRotation = 0, targetRotation = 0;
@@ -6,9 +6,8 @@ var MainScene = (function () {
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
 
-  // 非对称旋转范围
-  var maxRotRight = 30 * Math.PI / 180;
-  var maxRotLeft  = -70 * Math.PI / 180;
+  var maxRotRight = 15 * Math.PI / 180;
+  var maxRotLeft  = -65 * Math.PI / 180;
 
   function start() {
     var oldCanvases = document.querySelectorAll('canvas');
@@ -48,41 +47,38 @@ var MainScene = (function () {
   }
 
   function buildScene() {
-    var radius = 12;
+    var radius = 8;
     var height = 7;
-    var panelArc = 60 * Math.PI / 180;     // 每个视频面板 60°
-    var blackArc = 40 * Math.PI / 180;      // 左侧黑面板
-    var totalVideoArc = panelArc * 2;        // 两个视频 = 120°
-    var thetaStart = Math.PI - totalVideoArc / 2;
+    var videoArc = 90 * Math.PI / 180;    // 视频面板 90°
+    var blackArc = 50 * Math.PI / 180;     // 左侧黑面板 50°
 
-    // ── 视频面板：左 + 中 ──
-    var videoFiles = ['videos/left.mp4', 'videos/middle.mp4'];
-    videoFiles.forEach(function (file, i) {
-      var video = document.createElement('video');
-      video.src = file;
-      video.autoplay = true;
-      video.loop = true;
-      video.muted = true;
-      video.playsInline = true;
-      video.style.display = 'none';
-      document.body.appendChild(video);
-      video.play();
+    // 视频面板居中
+    var thetaStart = Math.PI - videoArc / 2;
 
-      var tex = new THREE.VideoTexture(video);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
+    // ── 视频面板 ──
+    var video = document.createElement('video');
+    video.src = 'videos/middle.mp4';
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.style.display = 'none';
+    document.body.appendChild(video);
+    video.play();
 
-      var material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
-      var segStart = thetaStart + i * panelArc;
-      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, panelArc);
-      scene.add(new THREE.Mesh(geometry, material));
-    });
+    var tex = new THREE.VideoTexture(video);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+
+    var videoMat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
+    var videoGeo = new THREE.CylinderGeometry(radius, radius, height, 48, 1, true, thetaStart, videoArc);
+    scene.add(new THREE.Mesh(videoGeo, videoMat));
 
     // ── 左侧黑面板 ──
     var blackStart = thetaStart - blackArc;
     var blackMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide });
-    var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 16, 1, true, blackStart, blackArc);
+    var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 20, 1, true, blackStart, blackArc);
     scene.add(new THREE.Mesh(blackGeo, blackMat));
   }
 
