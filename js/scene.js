@@ -16,7 +16,7 @@ var MainScene = (function () {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0x000000);
 
-    camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.5, 40);
+    camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.5, 50);
     camera.position.set(0, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
@@ -47,8 +47,8 @@ var MainScene = (function () {
   }
 
   function buildCylinderWithVideos() {
-    var radius = 8;
-    var height = 9;
+    var radius = 14;
+    var height = 7;
     var arcAngle = 50 * Math.PI / 180; // each panel = 50°
     var totalArc = 150 * Math.PI / 180; // full visible arc
     var thetaStart = Math.PI - totalArc / 2;
