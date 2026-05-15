@@ -129,7 +129,8 @@ var MainScene = (function () {
   function onDoubleClick(e) {
     if (ChatSystem.isActive()) return;
     isLying = !isLying;
-    targetXRotation = isLying ? -Math.PI / 2 : 0;
+    targetXRotation = isLying ? Math.PI / 2 : 0;
+    console.log('双击:', isLying ? '仰天躺下' : '坐起', 'targetXRotation:', targetXRotation);
   }
 
   function onMouseMove(e) {
