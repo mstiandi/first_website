@@ -8,134 +8,19 @@
 </head>
 <body>
 
-<!-- ═══════════════ 冥想视图 ═══════════════ -->
-<div class="view view-meditation active" id="view-meditation">
-
-  <div class="scene scene-forest active" id="scene-forest">
-    <div class="forest-layers">
-      <div class="forest-layer layer-back"></div>
-      <div class="forest-layer layer-mid"></div>
-      <div class="forest-layer layer-front"></div>
-    </div>
-    <div class="particles" id="particles-forest"></div>
-  </div>
-
-  <div class="scene scene-ocean" id="scene-ocean">
-    <div class="light-rays" id="rays-ocean"></div>
-    <div class="bubbles" id="bubbles-ocean"></div>
-    <div class="ocean-fish" id="ocean-fish"></div>
-    <div class="ocean-whale" id="ocean-whale"></div>
-  </div>
-
-  <div class="scene scene-stars" id="scene-stars">
-    <canvas id="auroraCanvas"></canvas>
-    <div class="starfield" id="starfield"></div>
-    <div class="mountains"></div>
-  </div>
-
-  <div class="scene scene-rain" id="scene-rain">
-    <div class="window-frame">
-      <div class="window-glass" id="windowGlass"></div>
-      <div class="window-sill"></div>
-      <div class="window-mullion v-left"></div>
-      <div class="window-mullion v-right"></div>
-      <div class="window-mullion h-mid"></div>
-    </div>
-    <div class="rain-bg" id="rainBg"></div>
-  </div>
-
-  <div class="overlay">
-    <div class="clock" id="clock">00:00</div>
-    <div class="date-text" id="dateText"></div>
-    <div class="quote" id="quote"></div>
-    <div class="breath-circle"></div>
-  </div>
-
-  <div class="scene-switcher" id="sceneSwitcher">
-    <button class="scene-btn active" data-scene="forest" title="森林">&#127795;</button>
-    <button class="scene-btn" data-scene="ocean" title="深海">&#127754;</button>
-    <button class="scene-btn" data-scene="stars" title="极光">&#127756;</button>
-    <button class="scene-btn" data-scene="rain" title="雨夜">&#127783;</button>
-  </div>
+<div id="chat-overlay">
+  <div id="chat-fade-text"></div>
+  <div id="chat-cursor"></div>
+  <input type="text" id="chat-input" autocomplete="off">
 </div>
 
-<!-- ═══════════════ 忧郁视图 ═══════════════ -->
-<div class="view view-melancholy" id="view-melancholy">
-  <div class="melancholy-bg">
-    <div class="melancholy-particles" id="melancholyParticles"></div>
-  </div>
-  <div class="overlay">
-    <div class="clock" id="clock2">00:00</div>
-    <div class="date-text" id="dateText2"></div>
-    <div class="quote melancholy-quote" id="melancholyQuote"></div>
-    <div class="breath-circle melancholy-circle"></div>
-  </div>
-</div>
+<div id="loading">...</div>
 
-<!-- ═══════════════ 助眠故事视图 ═══════════════ -->
-<div class="view view-stories" id="view-stories">
-  <div class="stories-bg"></div>
-
-  <!-- 主题选择 -->
-  <div class="stories-screen active" id="screen-topics">
-    <h2 class="stories-title">助眠故事</h2>
-    <p class="stories-subtitle">选一个主题，让声音伴你入眠</p>
-    <div class="topic-grid" id="topicGrid"></div>
-  </div>
-
-  <!-- 故事列表 -->
-  <div class="stories-screen" id="screen-list">
-    <button class="back-btn" id="backToTopics">&#8592; 返回</button>
-    <h2 class="stories-title" id="topicTitle"></h2>
-    <div class="story-list" id="storyList"></div>
-  </div>
-
-  <!-- 播放器 -->
-  <div class="stories-screen" id="screen-player">
-    <button class="back-btn" id="backToList">&#8592; 返回</button>
-    <div class="player-wrap">
-      <div class="player-title" id="playerTitle"></div>
-      <div class="player-time" id="playerTime">00:00</div>
-      <div class="player-progress-wrap">
-        <div class="player-progress" id="playerProgress"></div>
-      </div>
-      <div class="player-controls">
-        <button class="player-btn" id="playerRewind" title="后退30秒">&#8634;</button>
-        <button class="player-btn player-btn-play" id="playerPlay">&#9654;</button>
-        <button class="player-btn" id="playerForward" title="快进30秒">&#8635;</button>
-      </div>
-      <div class="player-volume">
-        <span>音量</span>
-        <input type="range" id="playerVolume" min="0" max="100" value="60">
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══════════════ 全局控制器 ═══════════════ -->
-<div class="controls">
-  <button class="ctrl-btn sound-toggle on" id="soundToggle" title="声音">&#9834;</button>
-  <div class="volume-slider-wrap" id="volumeWrap">
-    <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="30" title="音量">
-  </div>
-</div>
-
-<!-- ═══════════════ 底部 Tab 导航 ═══════════════ -->
-<nav class="tab-nav">
-  <button class="tab-btn active" data-tab="meditation">
-    <span class="tab-icon">&#127769;</span>
-    <span class="tab-label">冥想</span>
-  </button>
-  <button class="tab-btn" data-tab="melancholy">
-    <span class="tab-icon">&#127783;</span>
-    <span class="tab-label">忧郁</span>
-  </button>
-  <button class="tab-btn" data-tab="stories">
-    <span class="tab-icon">&#128214;</span>
-    <span class="tab-label">助眠故事</span>
-  </button>
-</nav>
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/entrance.js"></script>
+<script src="js/scene.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
