@@ -53,7 +53,7 @@ var MainScene = (function () {
     var totalArc = 150 * Math.PI / 180; // full visible arc
     var thetaStart = Math.PI - totalArc / 2;
 
-    var videoFiles = ['videos/left.mp4', 'videos/middle.mp4', 'videos/right.mp4'];
+    var videoFiles = ['videos/right.mp4', 'videos/middle.mp4', 'videos/left.mp4'];
 
     videoFiles.forEach(function (file, i) {
       var video = document.createElement('video');
