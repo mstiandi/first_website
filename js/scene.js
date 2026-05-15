@@ -1,4 +1,4 @@
-/* 主场景 — Three.js 圆柱全景 + 左侧黑面板（聊天入口） */
+/* 主场景 — 双视频面板 + 左侧黑面板（聊天入口） */
 var MainScene = (function () {
   var scene, camera, renderer;
   var currentRotation = 0, targetRotation = 0;
@@ -6,9 +6,9 @@ var MainScene = (function () {
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
 
-  // 非对称旋转范围：右侧到视频边缘即停，左侧可看到黑面板
-  var maxRotRight = 44 * Math.PI / 180;  // 右边界 = 视频边缘 - 半FOV
-  var maxRotLeft  = -84 * Math.PI / 180;  // 左边界 = 黑面板边缘
+  // 非对称旋转范围
+  var maxRotRight = 30 * Math.PI / 180;
+  var maxRotLeft  = -70 * Math.PI / 180;
 
   function start() {
     var oldCanvases = document.querySelectorAll('canvas');
@@ -48,15 +48,15 @@ var MainScene = (function () {
   }
 
   function buildScene() {
-    var radius = 14;
+    var radius = 12;
     var height = 7;
-    var panelAngle = 50 * Math.PI / 180;   // 每个视频面板 50°
-    var blackAngle = 40 * Math.PI / 180;    // 左侧黑面板 40°
-    var totalArc = 150 * Math.PI / 180;     // 3个视频 = 150°
-    var thetaStart = Math.PI - totalArc / 2; // 视频区起点
+    var panelArc = 60 * Math.PI / 180;     // 每个视频面板 60°
+    var blackArc = 40 * Math.PI / 180;      // 左侧黑面板
+    var totalVideoArc = panelArc * 2;        // 两个视频 = 120°
+    var thetaStart = Math.PI - totalVideoArc / 2;
 
-    // ── 视频面板（3段）──
-    var videoFiles = ['videos/right.mp4', 'videos/middle.mp4', 'videos/left.mp4'];
+    // ── 视频面板：左 + 中 ──
+    var videoFiles = ['videos/left.mp4', 'videos/middle.mp4'];
     videoFiles.forEach(function (file, i) {
       var video = document.createElement('video');
       video.src = file;
@@ -74,15 +74,15 @@ var MainScene = (function () {
       tex.magFilter = THREE.LinearFilter;
 
       var material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
-      var segStart = thetaStart + i * panelAngle;
-      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, panelAngle);
+      var segStart = thetaStart + i * panelArc;
+      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, panelArc);
       scene.add(new THREE.Mesh(geometry, material));
     });
 
-    // ── 左侧黑面板（聊天入口）──
-    var blackStart = thetaStart - blackAngle;
+    // ── 左侧黑面板 ──
+    var blackStart = thetaStart - blackArc;
     var blackMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide });
-    var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 16, 1, true, blackStart, blackAngle);
+    var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 16, 1, true, blackStart, blackArc);
     scene.add(new THREE.Mesh(blackGeo, blackMat));
   }
 
@@ -90,7 +90,6 @@ var MainScene = (function () {
     animId = requestAnimationFrame(loop);
 
     if (!dragActive) {
-      // 非对称映射：右半屏→右侧角度，左半屏→左侧角度
       if (mouseX > 0.5) {
         targetRotation = (mouseX - 0.5) * 2 * maxRotRight;
       } else {
