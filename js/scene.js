@@ -63,6 +63,7 @@ var MainScene = (function () {
     video.muted = true;
     video.playsInline = true;
     video.style.display = 'none';
+    video.style.transform = 'scaleX(-1)';  // 圆柱内表面镜像修正
     document.body.appendChild(video);
     video.play();
 
