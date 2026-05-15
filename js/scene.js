@@ -30,13 +30,21 @@ var MainScene = (function () {
     renderer.domElement.style.left = '0';
     document.body.appendChild(renderer.domElement);
 
-    // 预加载天空纹理
-    skyTexture = new THREE.TextureLoader().load('images/蓝天.png',
-      function (tex) { console.log('蓝天纹理加载成功', tex.image.width, 'x', tex.image.height); },
-      undefined,
-      function (err) { console.error('蓝天纹理加载失败', err); }
-    );
-    skyTexture.colorSpace = THREE.SRGBColorSpace;
+    // 预加载天空纹理（Canvas2D 翻转水平镜像）
+    var skyImg = new Image();
+    skyImg.onload = function () {
+      var canvas = document.createElement('canvas');
+      canvas.width = skyImg.width;
+      canvas.height = skyImg.height;
+      var ctx = canvas.getContext('2d');
+      ctx.scale(-1, 1);
+      ctx.drawImage(skyImg, -skyImg.width, 0);
+      skyTexture = new THREE.CanvasTexture(canvas);
+      skyTexture.colorSpace = THREE.SRGBColorSpace;
+      console.log('蓝天纹理加载并翻转成功', skyImg.width, 'x', skyImg.height);
+    };
+    skyImg.onerror = function (err) { console.error('蓝天纹理加载失败', err); };
+    skyImg.src = 'images/蓝天.png';
 
     buildScene();
 
@@ -128,8 +136,8 @@ var MainScene = (function () {
     if (ChatSystem.isActive()) return;
     isLying = !isLying;
     targetXRotation = isLying ? Math.PI / 2 : 0;
-    // 仰天时天空图片作为场景背景，坐起时恢复黑色
-    scene.background = isLying ? skyTexture : new THREE.Color(0x000000);
+    // 仰天时天空图片作为场景背景（未加载完则保持黑色），坐起时恢复黑色
+    scene.background = (isLying && skyTexture) ? skyTexture : new THREE.Color(0x000000);
     console.log('双击:', isLying ? '仰天躺下' : '坐起');
   }
 
