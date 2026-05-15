@@ -6,8 +6,8 @@ var MainScene = (function () {
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
 
-  var maxRotRight = 15 * Math.PI / 180;
-  var maxRotLeft  = -35 * Math.PI / 180;
+  var maxRotRight = 30 * Math.PI / 180;
+  var maxRotLeft  = -30 * Math.PI / 180;
 
   function start() {
     var oldCanvases = document.querySelectorAll('canvas');
@@ -89,7 +89,7 @@ var MainScene = (function () {
       if (mouseX > 0.5) {
         targetRotation = (mouseX - 0.5) * 2 * maxRotRight;
       } else {
-        targetRotation = (mouseX - 0.5) * 2 * (-maxRotLeft);
+        targetRotation = -(0.5 - mouseX) * 2 * maxRotRight;
       }
       targetRotation = Math.max(maxRotLeft, Math.min(maxRotRight, targetRotation));
     }
@@ -98,7 +98,7 @@ var MainScene = (function () {
     if (Math.abs(currentRotation - targetRotation) < 0.0002) {
       currentRotation = targetRotation;
     }
-    camera.rotation.y = currentRotation;
+    camera.rotation.y = -currentRotation;
     renderer.render(scene, camera);
   }
 
