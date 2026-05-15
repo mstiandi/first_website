@@ -91,11 +91,11 @@ var MainScene = (function () {
     // ── 天空顶盖（双击仰天时可见）──
     var skyTex = new THREE.TextureLoader().load('images/蓝天.png');
     skyTex.colorSpace = THREE.SRGBColorSpace;
-    var skyGeo = new THREE.CircleGeometry(radius, 48);
+    var skyGeo = new THREE.PlaneGeometry(radius * 2, radius * 2);
     var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.DoubleSide });
     var skyMesh = new THREE.Mesh(skyGeo, skyMat);
     skyMesh.position.y = height / 2;
-    skyMesh.rotation.x = -Math.PI / 2;
+    skyMesh.rotation.x = Math.PI / 2;
     scene.add(skyMesh);
   }
 
