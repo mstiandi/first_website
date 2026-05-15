@@ -16,7 +16,7 @@ var MainScene = (function () {
     oldCanvases.forEach(function (c) { c.remove(); });
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(0x1a1a2e);
 
     camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.5, 50);
     camera.position.set(0, 0, 0);
@@ -89,14 +89,21 @@ var MainScene = (function () {
     scene.add(new THREE.Mesh(blackGeo, blackMat));
 
     // ── 天空顶盖（双击仰天时可见）──
-    var skyTex = new THREE.TextureLoader().load('images/蓝天.png');
+    var skyTex = new THREE.TextureLoader().load('images/蓝天.png',
+      function (tex) { console.log('蓝天纹理加载成功', tex.image.width, 'x', tex.image.height); },
+      undefined,
+      function (err) { console.error('蓝天纹理加载失败', err); }
+    );
     skyTex.colorSpace = THREE.SRGBColorSpace;
-    var skyGeo = new THREE.PlaneGeometry(radius * 2, radius * 2);
-    var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, side: THREE.DoubleSide });
+    var skyGeo = new THREE.PlaneGeometry(16, 16);
+    // MeshBasicMaterial: map 加载成功则显示图片，加载中/失败则显示兜底蓝色
+    var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, color: 0x4a90d9, side: THREE.DoubleSide });
     var skyMesh = new THREE.Mesh(skyGeo, skyMat);
-    skyMesh.position.y = height / 2;
-    skyMesh.rotation.x = Math.PI / 2;
+    skyMesh.position.set(0, height / 2, 0);
+    // PlaneGeometry 默认朝 +Z，旋转 -PI/2 后面朝 +Y（上方），DoubleSide 保证从下方也可见
+    skyMesh.rotation.x = -Math.PI / 2;
     scene.add(skyMesh);
+    console.log('天空平面已添加，位置:', skyMesh.position.y, '旋转:', skyMesh.rotation.x);
   }
 
   function loop() {
