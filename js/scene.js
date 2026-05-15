@@ -57,7 +57,7 @@ var MainScene = (function () {
 
     // ── 视频面板 ──
     var video = document.createElement('video');
-    video.src = 'videos/middle.mp4';
+    video.src = 'videos/海崖.mp4';
     video.autoplay = true;
     video.loop = true;
     video.muted = true;
