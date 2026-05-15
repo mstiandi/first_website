@@ -1,64 +1,38 @@
-/* 主场景 — CSS 3D 全景：支持视频/图片面板，自动降级 */
+/* 主场景 — Three.js 圆柱全景：VideoTexture 直贴，零 shader，零 canvas */
 var MainScene = (function () {
-  var container, wrapper;
-  var currentRot = 0, targetRot = 0;
-  var minRot = -75, maxRot = 75;
+  var scene, camera, renderer;
+  var currentRotation = 0, targetRotation = 0;
+  var minRot = -75 * Math.PI / 180, maxRot = 75 * Math.PI / 180;
   var animId = null;
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
-
-  // ── 素材配置（替换视频/图片改这里就行）──
-  var panels = [
-    { src: 'videos/left.mp4',   type: 'video' },
-    { src: 'videos/middle.mp4', type: 'video' },
-    { src: 'videos/right.mp4',  type: 'video' }
-  ];
-
-  // 如果有视频可用，自动替换对应面板
-  // 例：panels[1] = { src: 'videos/ocean.mp4', type: 'video' };
+  var videoTextures = [];
 
   function start() {
-    // 清理入场动画的 canvas
-    var oldCanvas = document.querySelector('canvas');
-    if (oldCanvas) oldCanvas.remove();
+    // 清理入场 canvas
+    var oldCanvases = document.querySelectorAll('canvas');
+    oldCanvases.forEach(function (c) { c.remove(); });
 
-    // 创建场景容器
-    container = document.createElement('div');
-    container.id = 'scene-container';
-    document.body.appendChild(container);
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
 
-    wrapper = document.createElement('div');
-    wrapper.id = 'scene-wrapper';
-    container.appendChild(wrapper);
+    camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.5, 40);
+    camera.position.set(0, 0, 0);
 
-    // 按配置创建面板（图片或视频）
-    panels.forEach(function (panel, i) {
-      var el;
-      if (panel.type === 'video') {
-        el = document.createElement('video');
-        el.src = panel.src;
-        el.autoplay = true;
-        el.loop = true;
-        el.muted = true;
-        el.playsInline = true;
-        el.style.width = '100%';
-        el.style.height = '100%';
-        el.style.objectFit = 'cover';
-        el.style.pointerEvents = 'none';
-      } else {
-        el = document.createElement('div');
-        el.style.backgroundImage = 'url(' + panel.src + ')';
-        el.style.backgroundSize = 'cover';
-        el.style.backgroundPosition = 'center';
-      }
-      el.className = 'scene-panel';
-      wrapper.appendChild(el);
-    });
+    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.domElement.style.position = 'absolute';
+    renderer.domElement.style.top = '0';
+    renderer.domElement.style.left = '0';
+    document.body.appendChild(renderer.domElement);
 
-    // 交互
-    document.addEventListener('mousemove', onMouseMove);
-    container.addEventListener('mousedown', onMouseDown);
-    document.addEventListener('mouseup', onMouseUp);
+    buildCylinderWithVideos();
+
+    window.addEventListener('mousemove', onMouseMove);
+    renderer.domElement.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('resize', onResize);
 
     var hint = document.createElement('div');
     hint.id = 'hint-text';
@@ -72,15 +46,61 @@ var MainScene = (function () {
     loop();
   }
 
+  function buildCylinderWithVideos() {
+    var radius = 10;
+    var height = 5.5;
+    var arcAngle = 50 * Math.PI / 180; // each panel = 50°
+    var totalArc = 150 * Math.PI / 180; // full visible arc
+    var thetaStart = Math.PI - totalArc / 2;
+
+    var videoFiles = ['videos/left.mp4', 'videos/middle.mp4', 'videos/right.mp4'];
+
+    videoFiles.forEach(function (file, i) {
+      var video = document.createElement('video');
+      video.src = file;
+      video.autoplay = true;
+      video.loop = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.crossOrigin = 'anonymous';
+      video.style.display = 'none';
+      document.body.appendChild(video);
+      video.play();
+
+      var tex = new THREE.VideoTexture(video);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      videoTextures.push(tex);
+
+      var material = new THREE.MeshBasicMaterial({
+        map: tex,
+        side: THREE.BackSide
+      });
+
+      var segStart = thetaStart + i * arcAngle;
+      var geometry = new THREE.CylinderGeometry(radius, radius, height, 32, 1, true, segStart, arcAngle);
+
+      var segment = new THREE.Mesh(geometry, material);
+      scene.add(segment);
+    });
+  }
+
   function loop() {
     animId = requestAnimationFrame(loop);
+
     if (!dragActive) {
-      targetRot = (mouseX - 0.5) * 2 * maxRot;
-      targetRot = Math.max(minRot, Math.min(maxRot, targetRot));
+      targetRotation = (mouseX - 0.5) * 2 * maxRot;
+      targetRotation = Math.max(minRot, Math.min(maxRot, targetRotation));
     }
-    currentRot += (targetRot - currentRot) * 0.06;
-    if (Math.abs(currentRot - targetRot) < 0.01) currentRot = targetRot;
-    wrapper.style.transform = 'rotateY(' + (-currentRot) + 'deg)';
+
+    currentRotation += (targetRotation - currentRotation) * 0.06;
+    if (Math.abs(currentRotation - targetRotation) < 0.0002) {
+      currentRotation = targetRotation;
+    }
+    camera.rotation.y = currentRotation;
+
+    renderer.render(scene, camera);
   }
 
   function onMouseMove(e) {
@@ -96,6 +116,14 @@ var MainScene = (function () {
     dragStartX = e.clientX;
   }
   function onMouseUp(e) { dragActive = false; }
+
+  function onResize() {
+    if (camera) {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    }
+    if (renderer) renderer.setSize(window.innerWidth, window.innerHeight);
+  }
 
   return { start: start };
 })();
