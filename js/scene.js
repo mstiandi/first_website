@@ -7,6 +7,7 @@ var MainScene = (function () {
   var mouseX = 0.5;
   var dragStartX = 0, dragActive = false, dragThreshold = 70;
   var isLying = false;
+  var skyTexture = null; // 双击仰天时切换为背景
 
   var maxRotRight = 30 * Math.PI / 180;
   var maxRotLeft  = -30 * Math.PI / 180;
@@ -16,7 +17,7 @@ var MainScene = (function () {
     oldCanvases.forEach(function (c) { c.remove(); });
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e);
+    scene.background = new THREE.Color(0x000000);
 
     camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.5, 50);
     camera.position.set(0, 0, 0);
@@ -28,6 +29,14 @@ var MainScene = (function () {
     renderer.domElement.style.top = '0';
     renderer.domElement.style.left = '0';
     document.body.appendChild(renderer.domElement);
+
+    // 预加载天空纹理
+    skyTexture = new THREE.TextureLoader().load('images/蓝天.png',
+      function (tex) { console.log('蓝天纹理加载成功', tex.image.width, 'x', tex.image.height); },
+      undefined,
+      function (err) { console.error('蓝天纹理加载失败', err); }
+    );
+    skyTexture.colorSpace = THREE.SRGBColorSpace;
 
     buildScene();
 
@@ -52,10 +61,9 @@ var MainScene = (function () {
   function buildScene() {
     var radius = 8;
     var height = 7;
-    var videoArc = 90 * Math.PI / 180;    // 视频面板 90°
-    var blackArc = 35 * Math.PI / 180;     // 左侧黑面板 35°
+    var videoArc = 90 * Math.PI / 180;
+    var blackArc = 35 * Math.PI / 180;
 
-    // 视频面板居中
     var thetaStart = Math.PI - videoArc / 2;
 
     // ── 视频面板 ──
@@ -87,23 +95,6 @@ var MainScene = (function () {
     var blackMat = new THREE.MeshBasicMaterial({ color: 0x0a0a0a, side: THREE.BackSide });
     var blackGeo = new THREE.CylinderGeometry(radius, radius, height, 20, 1, true, blackStart, blackArc);
     scene.add(new THREE.Mesh(blackGeo, blackMat));
-
-    // ── 天空顶盖（双击仰天时可见）──
-    var skyTex = new THREE.TextureLoader().load('images/蓝天.png',
-      function (tex) { console.log('蓝天纹理加载成功', tex.image.width, 'x', tex.image.height); },
-      undefined,
-      function (err) { console.error('蓝天纹理加载失败', err); }
-    );
-    skyTex.colorSpace = THREE.SRGBColorSpace;
-    var skyGeo = new THREE.PlaneGeometry(16, 16);
-    // MeshBasicMaterial: map 加载成功则显示图片，加载中/失败则显示兜底蓝色
-    var skyMat = new THREE.MeshBasicMaterial({ map: skyTex, color: 0x4a90d9, side: THREE.DoubleSide });
-    var skyMesh = new THREE.Mesh(skyGeo, skyMat);
-    skyMesh.position.set(0, height / 2, 0);
-    // PlaneGeometry 默认朝 +Z，旋转 -PI/2 后面朝 +Y（上方），DoubleSide 保证从下方也可见
-    skyMesh.rotation.x = -Math.PI / 2;
-    scene.add(skyMesh);
-    console.log('天空平面已添加，位置:', skyMesh.position.y, '旋转:', skyMesh.rotation.x);
   }
 
   function loop() {
@@ -137,7 +128,9 @@ var MainScene = (function () {
     if (ChatSystem.isActive()) return;
     isLying = !isLying;
     targetXRotation = isLying ? Math.PI / 2 : 0;
-    console.log('双击:', isLying ? '仰天躺下' : '坐起', 'targetXRotation:', targetXRotation);
+    // 仰天时天空图片作为场景背景，坐起时恢复黑色
+    scene.background = isLying ? skyTexture : new THREE.Color(0x000000);
+    console.log('双击:', isLying ? '仰天躺下' : '坐起');
   }
 
   function onMouseMove(e) {
