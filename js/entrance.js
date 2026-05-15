@@ -40,17 +40,17 @@ var EntranceAnimation = (function () {
     // Fog for depth
     scene.fog = new THREE.Fog(0x000000, 3, 12);
 
-    // Start animation loop
     var startTime = performance.now();
+    var done = false;
     function animate(now) {
       animId = requestAnimationFrame(animate);
-      var t = (now - startTime) / 1000; // seconds
+      var t = (now - startTime) / 1000;
 
       if (t < 3.8) {
         updateGlasses(t);
         renderer.render(scene, camera);
-      } else {
-        // Done — crossfade to main scene
+      } else if (!done) {
+        done = true;
         renderer.domElement.style.opacity = '0';
         renderer.domElement.style.transition = 'opacity 0.8s';
         setTimeout(function () {

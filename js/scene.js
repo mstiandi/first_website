@@ -1,10 +1,10 @@
-/* 主场景 — 轻量版：无 shader，纯静态纹理 + 自由凝视 */
+/* 主场景 — CSS 3D 全景：零 WebGL，纯 CSS transform */
 var MainScene = (function () {
-  var scene, camera, renderer, cylinder;
-  var currentRotation = 0;
-  var targetRotation = 0;
-  var minRot = -75 * Math.PI / 180;
-  var maxRot = 75 * Math.PI / 180;
+  var container, wrapper;
+  var currentRot = 0;
+  var targetRot = 0;
+  var minRot = -75;
+  var maxRot = 75;
   var animId = null;
 
   var mouseX = 0.5;
@@ -13,118 +13,66 @@ var MainScene = (function () {
   var dragThreshold = 70;
 
   function start() {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x1a1a2e);
+    // Remove Three.js canvas from entrance
+    var oldCanvas = document.querySelector('canvas');
+    if (oldCanvas) oldCanvas.remove();
 
-    camera = new THREE.PerspectiveCamera(68, window.innerWidth / window.innerHeight, 0.5, 60);
-    camera.position.set(0, 0, 0);
-    camera.lookAt(0, 0, -8);
+    // Create CSS scene container
+    container = document.createElement('div');
+    container.id = 'scene-container';
+    container.innerHTML = [
+      '<div id="scene-wrapper">',
+        '<div class="scene-panel scene-panel-left"></div>',
+        '<div class="scene-panel scene-panel-center"></div>',
+        '<div class="scene-panel scene-panel-right"></div>',
+      '</div>'
+    ].join('');
+    document.body.appendChild(container);
 
-    renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.domElement.style.position = 'absolute';
-    renderer.domElement.style.top = '0';
-    renderer.domElement.style.left = '0';
-    document.body.appendChild(renderer.domElement);
+    wrapper = document.getElementById('scene-wrapper');
 
-    loadTexturesAndBuild();
-
-    window.addEventListener('mousemove', onMouseMove);
-    renderer.domElement.addEventListener('mousedown', onMouseDown);
-    window.addEventListener('mouseup', onMouseUp);
+    // Events
+    document.addEventListener('mousemove', onMouseMove);
+    container.addEventListener('mousedown', onMouseDown);
+    document.addEventListener('mouseup', onMouseUp);
     window.addEventListener('resize', onResize);
 
+    // Hint
     var hint = document.createElement('div');
     hint.id = 'hint-text';
     hint.textContent = '移动鼠标看风景  |  左拖进入对话';
     document.body.appendChild(hint);
     setTimeout(function () { hint.style.opacity = '0'; }, 8000);
 
+    // Hide loading
+    var loading = document.getElementById('loading');
+    if (loading) loading.style.opacity = '0';
+
+    // Set background images directly — no canvas, no WebGL
+    var panels = document.querySelectorAll('.scene-panel');
+    if (panels[1]) panels[1].style.backgroundImage = 'url(images/True海崖.png)';
+    if (panels[2]) panels[2].style.backgroundImage = 'url(images/true海草坪.png)';
+    // Left panel uses same image for now
+    if (panels[0]) panels[0].style.backgroundImage = 'url(images/True海崖.png)';
+
     loop();
-  }
-
-  function loadTexturesAndBuild() {
-    var imgBase = 'images/';
-    var mainImg = new Image();
-    var grassImg = new Image();
-
-    var loaded = 0;
-    function checkAll() { loaded++; if (loaded === 2) buildComposite(); }
-
-    mainImg.onload = checkAll;
-    grassImg.onload = checkAll;
-    mainImg.src = imgBase + 'True海崖.png';
-    grassImg.src = imgBase + 'true海草坪.png';
-
-    function buildComposite() {
-      // Much smaller composite — power-of-2 friendly
-      var canvasW = 2048;
-      var canvasH = 1024;
-
-      var compositeCanvas = document.createElement('canvas');
-      compositeCanvas.width = canvasW;
-      compositeCanvas.height = canvasH;
-      var ctx = compositeCanvas.getContext('2d');
-
-      // Divide into 3 equal sections
-      var secW = canvasW / 3;
-
-      // Left: left portion of main image (left cliff)
-      var leftSrcW = 400;
-      ctx.drawImage(mainImg, 0, 0, leftSrcW, mainImg.height, 0, 0, secW, canvasH);
-
-      // Center: main image
-      ctx.drawImage(mainImg, 0, 0, mainImg.width, mainImg.height, secW, 0, secW, canvasH);
-
-      // Right: grassland
-      var grassScale = canvasH / grassImg.height;
-      var grassDrawW = grassImg.width * grassScale;
-      ctx.drawImage(grassImg, secW * 2 + (secW - grassDrawW) / 2, 0, grassDrawW, canvasH);
-
-      var tex = new THREE.CanvasTexture(compositeCanvas);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-
-      buildCylinder(tex);
-
-      var loading = document.getElementById('loading');
-      if (loading) loading.style.opacity = '0';
-    }
-  }
-
-  function buildCylinder(tex) {
-    var radius = 16;
-    var height = 10.5;
-    var totalAngle = 150 * Math.PI / 180;
-    var thetaStart = Math.PI - totalAngle / 2;
-
-    // Simple material — no shader
-    var material = new THREE.MeshBasicMaterial({
-      map: tex,
-      side: THREE.BackSide
-    });
-
-    var geometry = new THREE.CylinderGeometry(radius, radius, height, 64, 1, true, thetaStart, totalAngle);
-    cylinder = new THREE.Mesh(geometry, material);
-    scene.add(cylinder);
   }
 
   function loop() {
     animId = requestAnimationFrame(loop);
 
     if (!dragActive) {
-      targetRotation = (mouseX - 0.5) * 2 * maxRot;
-      targetRotation = Math.max(minRot, Math.min(maxRot, targetRotation));
+      targetRot = (mouseX - 0.5) * 2 * maxRot;
+      targetRot = Math.max(minRot, Math.min(maxRot, targetRot));
     }
 
-    currentRotation += (targetRotation - currentRotation) * 0.06;
-    if (Math.abs(currentRotation - targetRotation) < 0.0002) {
-      currentRotation = targetRotation;
+    currentRot += (targetRot - currentRot) * 0.06;
+    if (Math.abs(currentRot - targetRot) < 0.01) {
+      currentRot = targetRot;
     }
-    camera.rotation.y = currentRotation;
-    renderer.render(scene, camera);
+
+    // Apply CSS transform — rotateY + slight scale for depth
+    wrapper.style.transform = 'rotateY(' + (-currentRot) + 'deg)';
   }
 
   function onMouseMove(e) {
@@ -146,13 +94,7 @@ var MainScene = (function () {
   function onMouseUp(e) { dragActive = false; }
 
   function onResize() {
-    if (camera) {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-    }
-    if (renderer) {
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
+    // CSS handles responsiveness automatically
   }
 
   return { start: start };
