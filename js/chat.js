@@ -41,6 +41,7 @@ var ChatSystem = (function () {
     input = document.getElementById('chat-input');
 
     input.addEventListener('keydown', onKeyDown);
+    input.addEventListener('input', onInput);
     overlay.addEventListener('click', function () {
       if (active && !typing) startTyping();
     });
@@ -94,6 +95,18 @@ var ChatSystem = (function () {
     }, 700);
   }
 
+  function onInput() {
+    if (!active || !typing) return;
+    var val = input.value;
+    if (val) {
+      showText(val);
+      cursor.style.display = 'none';
+    } else {
+      fadeText.style.opacity = '0';
+      cursor.style.display = '';
+    }
+  }
+
   function onKeyDown(e) {
     if (!active || !typing) return;
     if (e.key === 'Enter') {
@@ -129,8 +142,6 @@ var ChatSystem = (function () {
   }
 
   function fetchAIResponse() {
-    showText('...');
-
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
