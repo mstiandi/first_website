@@ -64,6 +64,7 @@ var ChatSystem = (function () {
     fadeText = document.getElementById('chat-fade-text');
     cursor = document.getElementById('chat-cursor');
     input = document.getElementById('chat-input');
+    input.setAttribute('maxlength', '500');
 
     input.addEventListener('keydown', onKeyDown);
     input.addEventListener('input', onInput);
@@ -140,6 +141,7 @@ var ChatSystem = (function () {
     cursor.classList.add('visible');
     input.value = '';
     input.focus();
+    input.disabled = false;
     startCursorBlink();
   }
 
@@ -186,6 +188,7 @@ var ChatSystem = (function () {
     clearTimeout(cursorTimer);
 
     showText(text);
+    input.disabled = true;
     conversation.push({ role: 'user', content: text });
     AudioEngine.playResonance();
     // 0.5s 后开始匀速向上淡出，动画结束后再拉 AI 回复
@@ -204,40 +207,64 @@ var ChatSystem = (function () {
     fadeText.style.opacity = '1';
     fadeText.classList.add('fade-in');
 
-    fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: conversation,
-        provider: PROVIDER,
-        stream: true,
-        temperature: 0.6,
-        max_tokens: 220
+    doFetch(0);
+
+    function doFetch(retryCount) {
+      var controller = new AbortController();
+      var timeout = setTimeout(function () { controller.abort(); }, 20000);
+
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversation,
+          provider: PROVIDER,
+          stream: true,
+          temperature: 0.6,
+          max_tokens: 220
+        }),
+        signal: controller.signal
       })
-    })
-    .then(function (res) {
-      if (!res.ok) throw new Error('API status ' + res.status);
-      var ct = res.headers.get('Content-Type') || '';
-      if (ct.indexOf('text/event-stream') !== -1) return readStream(res);
-      // 非流式回退（Vercel 函数未更新时）
-      return res.json().then(function (data) {
-        var raw = data.reply || '嗯。';
-        var parsed = parseAIResponse(raw);
-        conversation.push({ role: 'assistant', content: parsed.reply });
-        showText(parsed.reply, true);
-        applyMood(parsed.mood);
-        AudioEngine.playChime();
-        finishReply(parsed.reply);
+      .then(function (res) {
+        clearTimeout(timeout);
+        if (res.status === 429) throw new Error('RATE_LIMITED');
+        if (!res.ok) {
+          if (res.status >= 400 && res.status < 500) throw new Error('CLIENT_ERROR');
+          throw new Error('API status ' + res.status);
+        }
+        var ct = res.headers.get('Content-Type') || '';
+        if (ct.indexOf('text/event-stream') !== -1) return readStream(res);
+        // 非流式回退（Vercel 函数未更新时）
+        return res.json().then(function (data) {
+          var raw = data.reply || '嗯。';
+          var parsed = parseAIResponse(raw);
+          conversation.push({ role: 'assistant', content: parsed.reply });
+          showText(parsed.reply, true);
+          applyMood(parsed.mood);
+          AudioEngine.playChime();
+          finishReply(parsed.reply);
+        });
+      })
+      .catch(function (err) {
+        clearTimeout(timeout);
+        if (err.message === 'RATE_LIMITED' || err.message === 'CLIENT_ERROR') {
+          return doFallback();
+        }
+        if (retryCount < 1) {
+          return doFetch(retryCount + 1);
+        }
+        doFallback();
       });
-    })
-    .catch(function (err) {
-      console.warn('AI API 不可用，使用本地回声:', err);
+    }
+
+    function doFallback() {
+      console.warn('AI API 不可用，使用本地回声');
       var fallback = randomEcho(currentMood);
       conversation.push({ role: 'assistant', content: fallback });
       showText(fallback, true);
       AudioEngine.playChime();
       finishReply(fallback);
-    });
+    }
 
     function readStream(res) {
       var reader = res.body.getReader();

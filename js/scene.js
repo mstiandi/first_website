@@ -1,9 +1,9 @@
 /* 主场景 — 单视频面板 + 左侧黑面板（聊天入口）+ 随机场景 + 圆柱选择器（点击选择） */
 var SCENES = [
-  { path: 'videos/海崖_web.mp4',    name: '海崖',   meaning: '孤独与辽阔' },
-  { path: 'videos/篝火旁视角.mp4',   name: '篝火旁', meaning: '温暖与陪伴' },
-  { path: 'videos/草田视角.mp4',    name: '草田',   meaning: '自由与生长' },
-  { path: 'videos/森林.mp4',       name: '森林',   meaning: '静谧与深邃' }
+  { path: 'videos/海崖_web.mp4',        name: '海崖',   meaning: '孤独与辽阔' },
+  { path: 'videos/篝火旁视角_web.mp4',   name: '篝火旁', meaning: '温暖与陪伴' },
+  { path: 'videos/草田视角_web.mp4',     name: '草田',   meaning: '自由与生长' },
+  { path: 'videos/森林_web.mp4',        name: '森林',   meaning: '静谧与深邃' }
 ];
 var pickedScene = SCENES[Math.floor(Math.random() * SCENES.length)];
 
