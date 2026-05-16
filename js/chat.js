@@ -80,6 +80,7 @@ var ChatSystem = (function () {
 
   function startTyping() {
     typing = true;
+    cursor.style.display = '';
     cursor.classList.add('visible');
     input.value = '';
     input.focus();
@@ -137,7 +138,7 @@ var ChatSystem = (function () {
       setTimeout(function () {
         fadeText.style.opacity = '0';
         fetchAIResponse();
-      }, 2000);
+      }, 750);
     }, 400);
   }
 
