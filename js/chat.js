@@ -19,7 +19,7 @@ var ChatSystem = (function () {
     '用中文回复，语气自然，像深夜和好朋友轻声聊天。';
 
   // API 地址（部署后替换为 Vercel 域名）
-  var API_URL = 'https://jingshen-chat.vercel.app/api/chat';
+  var API_URL = 'https://first-website-lovat-delta.vercel.app/api/chat';
 
   // 默认 provider：deepseek 或 zhipu
   var PROVIDER = 'deepseek';
