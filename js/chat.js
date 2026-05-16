@@ -130,6 +130,7 @@ var ChatSystem = (function () {
     showText(text);
     conversation.push({ role: 'user', content: text });
     setTimeout(function () {
+      fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
       fadeText.classList.add('fade-up');
       fetchAIResponse();
     }, 500);
@@ -153,10 +154,11 @@ var ChatSystem = (function () {
       conversation.push({ role: 'assistant', content: reply });
       showText(reply);
       setTimeout(function () {
+        fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
           if (active) startTyping();
-        }, 600);
+        }, 500);
       }, Math.max(2000, reply.length * 80));
     })
     .catch(function (err) {
@@ -171,20 +173,22 @@ var ChatSystem = (function () {
       conversation.push({ role: 'assistant', content: fallback });
       showText(fallback);
       setTimeout(function () {
+        fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
           if (active) startTyping();
-        }, 600);
+        }, 500);
       }, 2500);
     });
   }
 
   function showText(txt) {
-    // 清除动画类，重置 transform，显示新文字
+    // 清除动画类和内联样式，显示新文字
     fadeText.classList.remove('fade-up', 'fade-down');
     fadeText.style.transform = '';
-    fadeText.textContent = txt;
+    fadeText.style.transition = '';
     fadeText.style.opacity = '1';
+    fadeText.textContent = txt;
   }
 
   function randomFrom(arr) {
