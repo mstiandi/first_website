@@ -7,7 +7,10 @@ var AudioEngine = (function () {
   var volume = 0.3;
 
   function init() {
-    if (ctx) return;
+    if (ctx) {
+      if (ctx.state === 'suspended') ctx.resume();
+      return;
+    }
     ctx = new (window.AudioContext || window.webkitAudioContext)();
     gainNode = ctx.createGain();
     gainNode.gain.value = volume;
@@ -55,11 +58,60 @@ var AudioEngine = (function () {
   }
 
   function setVolume(v) { volume = v; if (gainNode) gainNode.gain.value = v; }
+  function getVolume() { return volume; }
   function toggle() {
     if (playing) { stop(); return false; }
     else { playOcean(); return true; }
   }
   function isPlaying() { return playing; }
 
-  return { init: init, playOcean: playOcean, stop: stop, setVolume: setVolume, toggle: toggle, isPlaying: isPlaying };
+  // ── 风铃声（AI回复时触发）──
+  function playChime() {
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var now = ctx.currentTime;
+    // 两个快速泛音模拟风铃
+    [1200, 1550].forEach(function (freq, i) {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, now + i * 0.06);
+      g.gain.linearRampToValueAtTime(0.08, now + i * 0.06 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.5);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now + i * 0.06);
+      osc.stop(now + i * 0.06 + 0.55);
+    });
+  }
+
+  // ── 孤星轻吟（用户发送时触发）──
+  function playResonance() {
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume();
+    var now = ctx.currentTime;
+
+    // 小三度音程：忧郁但轻盈，不沉闷
+    [523, 622].forEach(function (freq, i) {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + i * 0.04);
+      // 轻微颤音，有机感
+      osc.frequency.setTargetAtTime(freq - 8, now + i * 0.04 + 0.12, 0.15);
+
+      g.gain.setValueAtTime(0, now + i * 0.04);
+      g.gain.linearRampToValueAtTime(0.045, now + i * 0.04 + 0.04);
+      g.gain.setValueAtTime(0.045, now + i * 0.04 + 0.15);
+      g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.04 + 0.75);
+
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now + i * 0.04);
+      osc.stop(now + i * 0.04 + 0.8);
+    });
+  }
+
+  return { init: init, playOcean: playOcean, stop: stop, setVolume: setVolume, getVolume: getVolume, toggle: toggle, isPlaying: isPlaying, playChime: playChime, playResonance: playResonance };
 })();

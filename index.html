@@ -4,14 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>精神避难所</title>
-  <link rel="stylesheet" href="css/style.css?v=28">
+  <link rel="stylesheet" href="css/style.css?v=33">
 </head>
 <body>
 
 <div id="eye-entrance">
-  <div class="eye-lid eye-lid-top"></div>
-  <div class="eye-lid eye-lid-bottom"></div>
-  <div class="eye-slit"></div>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <filter id="eye-feather" x="-20%" y="-80%" width="140%" height="260%">
+        <feGaussianBlur stdDeviation="18" />
+      </filter>
+      <mask id="eye-mask" maskUnits="userSpaceOnUse">
+        <rect id="eye-mask-bg" x="0" y="0" width="1920" height="1080" fill="white" />
+        <path id="eye-hole" fill="black" filter="url(#eye-feather)"></path>
+      </mask>
+    </defs>
+  </svg>
 </div>
 
 <div id="chat-overlay">
@@ -23,10 +31,13 @@
 
 <div id="loading">...</div>
 
+<div id="scene-transition"><div class="transition-text">换一个地方</div></div>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-<script src="js/audio.js?v=5"></script>
+<script src="js/audio.js?v=6"></script>
+<script src="js/eye-transition.js?v=1"></script>
 <script src="js/chat.js?v=34"></script>
-<script src="js/scene.js?v=17"></script>
-<script src="js/main.js?v=4"></script>
+<script src="js/scene.js?v=23"></script>
+<script src="js/main.js?v=7"></script>
 </body>
 </html>
