@@ -1,0 +1,10 @@
+videos/
+music/
+node_modules/
+images/
+.playwright-mcp/
+.claude/
+*.png
+*.mp4
+*.mp3
+*.avif
