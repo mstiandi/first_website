@@ -153,6 +153,14 @@ canvas { display: block; }
   line-height: 2.2;
   opacity: 1;
 }
+/* AI回复出现：由暗变亮 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+#chat-fade-text.fade-in {
+  animation: fadeIn 0.25s linear forwards;
+}
 /* 用户发送：向上平移 + 淡出 */
 #chat-fade-text.fade-up {
   opacity: 0;

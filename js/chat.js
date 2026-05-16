@@ -78,12 +78,12 @@ var ChatSystem = (function () {
       var reply = data.reply || '有什么想和我说的吗？';
       conversation.pop(); // 移除触发消息
       conversation.push({ role: 'assistant', content: reply });
-      showText(reply);
+      showText(reply, true);
       setTimeout(function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
-          fadeText.classList.remove('fade-down');
+          fadeText.classList.remove('fade-down', 'fade-in');
           fadeText.style.transition = 'none';
           fadeText.style.transform = '';
           fadeText.style.opacity = '';
@@ -98,12 +98,12 @@ var ChatSystem = (function () {
       var fallback = randomFrom(greetings);
       conversation.pop();
       conversation.push({ role: 'assistant', content: fallback });
-      showText(fallback);
+      showText(fallback, true);
       setTimeout(function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
-          fadeText.classList.remove('fade-down');
+          fadeText.classList.remove('fade-down', 'fade-in');
           fadeText.style.transition = 'none';
           fadeText.style.transform = '';
           fadeText.style.opacity = '';
@@ -205,13 +205,13 @@ var ChatSystem = (function () {
     .then(function (data) {
       var reply = data.reply || '嗯。';
       conversation.push({ role: 'assistant', content: reply });
-      showText(reply);
+      showText(reply, true);
       // AI 文字停留后，匀速向下淡出，动画结束后触发下一轮输入
       setTimeout(function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
-          fadeText.classList.remove('fade-down');
+          fadeText.classList.remove('fade-down', 'fade-in');
           fadeText.style.transition = 'none';
           fadeText.style.transform = '';
           fadeText.style.opacity = '';
@@ -231,12 +231,12 @@ var ChatSystem = (function () {
         '你在这里是安全的。'
       ]);
       conversation.push({ role: 'assistant', content: fallback });
-      showText(fallback);
+      showText(fallback, true);
       setTimeout(function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
-          fadeText.classList.remove('fade-down');
+          fadeText.classList.remove('fade-down', 'fade-in');
           fadeText.style.transition = 'none';
           fadeText.style.transform = '';
           fadeText.style.opacity = '';
@@ -248,14 +248,16 @@ var ChatSystem = (function () {
     });
   }
 
-  function showText(txt) {
-    fadeText.classList.remove('fade-up', 'fade-down');
-    // 瞬间清除所有行内样式，让 CSS 类和默认值接管
+  function showText(txt, fadeIn) {
+    fadeText.classList.remove('fade-up', 'fade-down', 'fade-in');
     fadeText.style.transition = 'none';
     fadeText.style.transform = '';
     fadeText.style.opacity = '';
     fadeText.textContent = txt;
-    fadeText.offsetHeight;
+    if (fadeIn) {
+      // 用 CSS animation 驱动淡入，无行内样式冲突
+      fadeText.classList.add('fade-in');
+    }
   }
 
   function randomFrom(arr) {
