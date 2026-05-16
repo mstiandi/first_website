@@ -129,10 +129,13 @@ var ChatSystem = (function () {
 
     showText(text);
     conversation.push({ role: 'user', content: text });
+    // 0.5s 后开始匀速向上淡出，动画结束后再拉 AI 回复
     setTimeout(function () {
       fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
       fadeText.classList.add('fade-up');
-      fetchAIResponse();
+      setTimeout(function () {
+        fetchAIResponse();
+      }, 500);
     }, 500);
   }
 
@@ -153,10 +156,16 @@ var ChatSystem = (function () {
       var reply = data.reply || '嗯。';
       conversation.push({ role: 'assistant', content: reply });
       showText(reply);
+      // AI 文字停留后，匀速向下淡出，动画结束后触发下一轮输入
       setTimeout(function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
+          fadeText.classList.remove('fade-down');
+          fadeText.style.transform = '';
+          fadeText.style.transition = '';
+          fadeText.style.opacity = '0';
+          fadeText.textContent = '';
           if (active) startTyping();
         }, 500);
       }, Math.max(2000, reply.length * 80));
@@ -176,6 +185,11 @@ var ChatSystem = (function () {
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
         setTimeout(function () {
+          fadeText.classList.remove('fade-down');
+          fadeText.style.transform = '';
+          fadeText.style.transition = '';
+          fadeText.style.opacity = '0';
+          fadeText.textContent = '';
           if (active) startTyping();
         }, 500);
       }, 2500);
@@ -183,12 +197,15 @@ var ChatSystem = (function () {
   }
 
   function showText(txt) {
-    // 清除动画类和内联样式，显示新文字
+    // 瞬间重置：去动画类、去内联样式、去过渡，然后从零开始显示
     fadeText.classList.remove('fade-up', 'fade-down');
-    fadeText.style.transform = '';
-    fadeText.style.transition = '';
+    fadeText.style.transition = 'none';
+    fadeText.style.transform = 'none';
     fadeText.style.opacity = '1';
     fadeText.textContent = txt;
+    // 强制回流确保 none 已生效
+    fadeText.offsetHeight;
+    fadeText.style.transition = '';
   }
 
   function randomFrom(arr) {
