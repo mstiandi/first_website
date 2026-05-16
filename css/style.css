@@ -344,6 +344,99 @@ canvas { display: block; }
 .scene-panel-left  { background-position: left center; }
 .scene-panel-right { background-position: right center; }
 
+/* ═══════════ 睁眼入场 ═══════════ */
+#eye-entrance {
+  position: fixed; inset: 0;
+  z-index: 120;
+  background: #000;
+  pointer-events: none;
+  overflow: hidden;
+}
+.eye-lid {
+  position: absolute;
+  left: 0; width: 100%;
+  height: 50%;
+  background: #000;
+  z-index: 2;
+}
+.eye-lid-top { top: 0; }
+.eye-lid-bottom { bottom: 0; }
+.eye-slit {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 44vw; height: 1px;
+  transform: translate(-50%, -50%);
+  background: rgba(210, 230, 255, 0.7);
+  box-shadow: 0 0 14px rgba(180, 210, 240, 0.45), 0 0 44px rgba(140, 180, 220, 0.2);
+  opacity: 0;
+  z-index: 3;
+}
+.arrival-text {
+  position: absolute;
+  left: 50%; bottom: 14vh;
+  transform: translateX(-50%);
+  color: rgba(220, 230, 240, 0.55);
+  font-family: "Noto Serif SC", "STSong", serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.18em;
+  opacity: 0;
+  z-index: 4;
+}
+
+/* 睁眼动画 — 触发 class */
+#eye-entrance.opening {
+  animation: entranceFadeOut 5.2s ease forwards;
+}
+#eye-entrance.opening .eye-lid-top {
+  animation: topLidOpen 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+#eye-entrance.opening .eye-lid-bottom {
+  animation: bottomLidOpen 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+#eye-entrance.opening .eye-slit {
+  animation: slitGlow 3.8s ease forwards;
+}
+#eye-entrance.opening .arrival-text {
+  animation: arrivalText 5.2s ease forwards;
+}
+
+@keyframes entranceFadeOut {
+  0%, 82% { background: #000; opacity: 1; }
+  100% { background: transparent; opacity: 0; }
+}
+@keyframes topLidOpen {
+  0% { transform: translateY(0); }
+  18% { transform: translateY(0); }
+  100% { transform: translateY(-52vh); }
+}
+@keyframes bottomLidOpen {
+  0% { transform: translateY(0); }
+  18% { transform: translateY(0); }
+  100% { transform: translateY(52vh); }
+}
+@keyframes slitGlow {
+  0%   { opacity: 0; height: 1px; width: 18vw; filter: blur(1px); }
+  18%  { opacity: 1; height: 1px; width: 38vw; }
+  55%  { opacity: 0.8; height: 8vh; width: 78vw; filter: blur(3px); }
+  100% { opacity: 0; height: 100vh; width: 100vw; filter: blur(10px); }
+}
+@keyframes arrivalText {
+  0%, 58% { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  68%, 82% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-4px); }
+}
+
+/* 主画面同步苏醒 */
+body.eye-opening canvas {
+  filter: brightness(0.25) blur(12px) saturate(0.65);
+  animation: sceneWake 4.8s ease forwards;
+}
+@keyframes sceneWake {
+  0%   { filter: brightness(0.25) blur(12px) saturate(0.65); }
+  45%  { filter: brightness(0.45) blur(8px) saturate(0.75); }
+  100% { filter: brightness(1) blur(0) saturate(1); }
+}
+
 /* 提示文字 */
 #hint-text {
   position: absolute; bottom: 30px; left: 50%;
