@@ -24,6 +24,16 @@ var ChatSystem = (function () {
   var voiceBtn = null;
   var voicePanel = null;
 
+  // 音乐播放
+  var musicBtn = null;
+  var musicPanel = null;
+  var musicAudio = null;
+  var musicPref = null;  // { style: 'cheerful'|'melancholic'|null, volume: 0.08 }
+  var MUSIC_FILES = {
+    'cheerful': 'music/Perlo - Call Me a Fool.mp3',
+    'melancholic': 'music/Mr FijiWiji,Danyka Nadeau - Yours Truly.mp3'
+  };
+
   // 情绪弧线容器
   var emotionArc = null;
 
@@ -71,6 +81,8 @@ var ChatSystem = (function () {
 
     voicePref = loadVoicePref();
     buildVoiceSelector();
+    musicPref = loadMusicPref();
+    buildMusicSelector();
   }
 
   function enter() {
@@ -80,6 +92,7 @@ var ChatSystem = (function () {
     moodTrail = [];
     currentMood = '平静';
     applyMood('平静');
+    restoreMusic();
     scheduleShootingStars();
     clearTimeout(welcomeTimer);
     welcomeTimer = setTimeout(function () {
@@ -120,6 +133,7 @@ var ChatSystem = (function () {
     // 清除所有流星元素
     var stars = overlay.querySelectorAll('.shooting-star');
     for (var s = 0; s < stars.length; s++) stars[s].remove();
+    stopMusic();
     cancelSpeech();
     showEmotionArc();
     fadeText.style.opacity = '0';
@@ -449,6 +463,8 @@ var ChatSystem = (function () {
       }
     }
     currentUtterance = utter;
+    duckMusic(true);
+    utter.addEventListener('end', function () { duckMusic(false); });
     synth.speak(utter);
     return utter;
   }
@@ -699,6 +715,122 @@ var ChatSystem = (function () {
       arc.style.opacity = '0';
       setTimeout(function() { arc.remove(); }, 600);
     }, 3000);
+  }
+
+  // ── 背景音乐 ──
+  function loadMusicPref() {
+    try {
+      var raw = localStorage.getItem('sanctuary_music');
+      return raw ? JSON.parse(raw) : null;
+    } catch(e) { return null; }
+  }
+  function saveMusicPref(pref) {
+    try { localStorage.setItem('sanctuary_music', JSON.stringify(pref)); } catch(e) {}
+  }
+  function buildMusicSelector() {
+    musicBtn = document.createElement('div');
+    musicBtn.className = 'music-btn';
+    musicBtn.title = '音乐';
+    musicBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M9 18V5l12-2v13" fill="none" stroke="#8ea4c0" stroke-width="1.5"/><circle cx="6" cy="18" r="3" fill="#8ea4c0"/><circle cx="18" cy="16" r="3" fill="#8ea4c0"/></svg>';
+    musicBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggleMusicPanel();
+    });
+    overlay.appendChild(musicBtn);
+
+    musicPanel = document.createElement('div');
+    musicPanel.className = 'music-panel';
+    musicPanel.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+    overlay.appendChild(musicPanel);
+    renderMusicPanel();
+
+    if (!musicPref) { musicPref = { style: null, volume: 0.08 }; saveMusicPref(musicPref); }
+  }
+  function renderMusicPanel() {
+    if (!musicPanel) return;
+    var vol = musicPref ? musicPref.volume : 0.08;
+    var style = musicPref ? musicPref.style : null;
+    musicPanel.innerHTML = ''
+      + '<div class="music-row"><span class="music-label">音量</span>'
+      + '<input type="range" class="music-slider" min="0" max="0.2" step="0.01" value="' + vol + '">'
+      + '</div>'
+      + '<div class="music-row music-stars">'
+      + '<div class="star-btn cheerful' + (style === 'cheerful' ? ' active' : '') + '" data-style="cheerful"></div>'
+      + '<div class="star-btn melancholic' + (style === 'melancholic' ? ' active' : '') + '" data-style="melancholic"></div>'
+      + '</div>';
+
+    musicPanel.querySelector('.music-slider').addEventListener('input', function(e) {
+      setMusicVolume(parseFloat(e.target.value));
+    });
+    var stars = musicPanel.querySelectorAll('.star-btn');
+    for (var i = 0; i < stars.length; i++) {
+      stars[i].addEventListener('click', function(e) {
+        e.stopPropagation();
+        var s = this.getAttribute('data-style');
+        selectMusic(s);
+      });
+    }
+  }
+  function toggleMusicPanel() {
+    musicPanel.classList.toggle('open');
+  }
+  function selectMusic(style) {
+    if (!musicPref) musicPref = { style: null, volume: 0.08 };
+    // 点同一个星星 = 关闭
+    if (musicPref.style === style) {
+      musicPref.style = null;
+    } else {
+      musicPref.style = style;
+    }
+    saveMusicPref(musicPref);
+    renderMusicPanel();
+    if (musicPref.style) {
+      startMusic();
+    } else {
+      stopMusic();
+    }
+  }
+  function setMusicVolume(v) {
+    if (!musicPref) musicPref = { style: null, volume: 0.08 };
+    musicPref.volume = v;
+    saveMusicPref(musicPref);
+    if (musicAudio) musicAudio.volume = v;
+  }
+  function startMusic() {
+    if (!musicPref || !musicPref.style) return;
+    var src = MUSIC_FILES[musicPref.style];
+    if (!src) return;
+    if (musicAudio) {
+      if (musicAudio.src.indexOf(src) !== -1) {
+        musicAudio.volume = musicPref.volume;
+        if (musicAudio.paused) musicAudio.play().catch(function(){});
+        return;
+      }
+      musicAudio.pause();
+      musicAudio = null;
+    }
+    musicAudio = new Audio(src);
+    musicAudio.loop = true;
+    musicAudio.volume = musicPref.volume;
+    musicAudio.play().catch(function(){});
+  }
+  function stopMusic() {
+    if (musicAudio) {
+      musicAudio.pause();
+      musicAudio.currentTime = 0;
+      musicAudio = null;
+    }
+  }
+  function restoreMusic() {
+    if (musicPref && musicPref.style) startMusic();
+  }
+  function duckMusic(on) {
+    if (!musicAudio || musicAudio.paused || !musicPref) return;
+    if (on) {
+      musicAudio.volume = musicPref.volume * 0.25;
+    } else {
+      musicAudio.volume = musicPref.volume;
+    }
   }
 
   function onChatMouseDown(e) {
