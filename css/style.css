@@ -33,10 +33,117 @@ canvas { display: block; }
   opacity: 0; pointer-events: none;
   transition: background 1.2s, opacity 0.8s;
   background: transparent;
+  overflow: hidden;
 }
 #chat-overlay.active {
   opacity: 1; pointer-events: auto;
-  background: rgba(0,0,0,0.88);
+  background: #000;
+}
+
+/* 星空点缀 */
+#chat-overlay::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity 1.5s;
+  pointer-events: none;
+}
+#chat-overlay.active::before {
+  opacity: 1;
+}
+/* 星星 — 多层 box-shadow 模拟星空 */
+#chat-overlay .stars {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 2s;
+}
+#chat-overlay.active .stars {
+  opacity: 1;
+}
+#chat-overlay .stars::before,
+#chat-overlay .stars::after {
+  content: '';
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: white;
+  animation: twinkle 3s ease-in-out infinite alternate;
+}
+#chat-overlay .stars::before {
+  top: 12%; left: 18%;
+  box-shadow:
+    40px 15px 0 0 rgba(255,255,255,0.9),
+    120px 60px 0 0 rgba(255,255,255,0.6),
+    200px 30px 0 0 rgba(255,255,255,0.8),
+    300px 80px 0 0 rgba(255,255,255,0.5),
+    500px 20px 0 0 rgba(255,255,255,0.7),
+    80px 120px 0 0 rgba(255,255,255,0.8),
+    250px 140px 0 0 rgba(255,255,255,0.6),
+    450px 100px 0 0 rgba(255,255,255,0.9),
+    600px 150px 0 0 rgba(255,255,255,0.5),
+    700px 40px 0 0 rgba(255,255,255,0.7),
+    150px 200px 0 0 rgba(255,255,255,0.8),
+    380px 220px 0 0 rgba(255,255,255,0.6),
+    550px 250px 0 0 rgba(255,255,255,1.0),
+    100px 300px 0 0 rgba(255,255,255,0.5),
+    280px 330px 0 0 rgba(255,255,255,0.7),
+    480px 350px 0 0 rgba(255,255,255,0.6),
+    680px 300px 0 0 rgba(255,255,255,0.8),
+    60px 400px 0 0 rgba(255,255,255,0.7),
+    320px 420px 0 0 rgba(255,255,255,0.9),
+    620px 430px 0 0 rgba(255,255,255,0.5),
+    760px 80px 0 0 rgba(255,255,255,0.7),
+    580px 380px 0 0 rgba(255,255,255,0.6),
+    340px 40px 0 0 rgba(255,255,255,0.8),
+    190px 340px 0 0 rgba(255,255,255,0.5),
+    50px 220px 0 0 rgba(255,255,255,0.9),
+    430px 150px 0 0 rgba(255,255,255,0.7),
+    670px 200px 0 0 rgba(255,255,255,0.6),
+    160px 460px 0 0 rgba(255,255,255,0.5),
+    510px 450px 0 0 rgba(255,255,255,0.8),
+    730px 420px 0 0 rgba(255,255,255,0.6);
+  animation-delay: 0s;
+}
+#chat-overlay .stars::after {
+  top: 8%; left: 25%;
+  box-shadow:
+    70px 25px 0 0 rgba(255,255,255,0.7),
+    180px 50px 0 0 rgba(255,255,255,0.9),
+    350px 15px 0 0 rgba(255,255,255,0.6),
+    420px 70px 0 0 rgba(255,255,255,0.8),
+    580px 55px 0 0 rgba(255,255,255,0.5),
+    30px 100px 0 0 rgba(255,255,255,1.0),
+    160px 170px 0 0 rgba(255,255,255,0.6),
+    330px 160px 0 0 rgba(255,255,255,0.8),
+    520px 180px 0 0 rgba(255,255,255,0.7),
+    660px 130px 0 0 rgba(255,255,255,0.5),
+    90px 260px 0 0 rgba(255,255,255,0.6),
+    240px 280px 0 0 rgba(255,255,255,0.8),
+    410px 270px 0 0 rgba(255,255,255,0.7),
+    570px 310px 0 0 rgba(255,255,255,0.9),
+    700px 250px 0 0 rgba(255,255,255,0.5),
+    50px 360px 0 0 rgba(255,255,255,0.8),
+    210px 380px 0 0 rgba(255,255,255,0.6),
+    460px 400px 0 0 rgba(255,255,255,0.9),
+    640px 370px 0 0 rgba(255,255,255,0.5),
+    170px 450px 0 0 rgba(255,255,255,0.7),
+    310px 50px 0 0 rgba(255,255,255,0.8),
+    500px 30px 0 0 rgba(255,255,255,0.6),
+    120px 80px 0 0 rgba(255,255,255,0.9),
+    600px 90px 0 0 rgba(255,255,255,0.5),
+    250px 440px 0 0 rgba(255,255,255,0.7),
+    690px 450px 0 0 rgba(255,255,255,0.6),
+    380px 120px 0 0 rgba(255,255,255,0.8),
+    100px 180px 0 0 rgba(255,255,255,0.5),
+    480px 440px 0 0 rgba(255,255,255,0.7),
+    720px 100px 0 0 rgba(255,255,255,0.9);
+  animation-delay: 1.5s;
+}
+@keyframes twinkle {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.3; }
 }
 
 #chat-fade-text {

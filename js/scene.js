@@ -5,7 +5,7 @@ var MainScene = (function () {
   var currentXRotation = 0, targetXRotation = 0;
   var animId = null;
   var mouseX = 0.5;
-  var dragStartX = 0, dragActive = false, dragThreshold = 70;
+  var dragStartX = 0, dragStartY = 0, dragActive = false, dragThreshold = 70;
   var isLying = false;
   var skyTexture = null; // 双击仰天时切换为背景
 
@@ -56,7 +56,7 @@ var MainScene = (function () {
 
     var hint = document.createElement('div');
     hint.id = 'hint-text';
-    hint.textContent = '移动鼠标看风景 | 双击仰天躺下 | 左拖进入对话';
+    hint.textContent = '移动鼠标看风景 | 双击躺下 | 下拖对话 · 上拖返回';
     document.body.appendChild(hint);
     setTimeout(function () { hint.style.opacity = '0'; }, 8000);
 
@@ -135,15 +135,15 @@ var MainScene = (function () {
   function onDoubleClick(e) {
     if (ChatSystem.isActive()) return;
     isLying = !isLying;
-    targetXRotation = isLying ? Math.PI / 2 : 0;
-    // 仰天时天空图片作为场景背景（未加载完则保持黑色），坐起时恢复黑色
+    targetXRotation = isLying ? -Math.PI / 2 : 0;
+    // 躺下时天空图片作为场景背景（未加载完则保持黑色），坐起时恢复黑色
     scene.background = (isLying && skyTexture) ? skyTexture : new THREE.Color(0x000000);
-    console.log('双击:', isLying ? '仰天躺下' : '坐起');
+    console.log('双击:', isLying ? '躺下' : '坐起');
   }
 
   function onMouseMove(e) {
     mouseX = Math.max(0, Math.min(1, e.clientX / window.innerWidth));
-    if (dragActive && e.clientX - dragStartX < -dragThreshold) {
+    if (dragActive && e.clientY - dragStartY > dragThreshold) {
       dragActive = false;
       ChatSystem.enter();
     }
@@ -152,6 +152,7 @@ var MainScene = (function () {
     if (ChatSystem.isActive()) return;
     dragActive = true;
     dragStartX = e.clientX;
+    dragStartY = e.clientY;
   }
   function onMouseUp(e) { dragActive = false; }
 
