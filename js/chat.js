@@ -754,7 +754,11 @@ var ChatSystem = (function () {
   function loadMusicPref() {
     try {
       var raw = localStorage.getItem('sanctuary_music');
-      return raw ? JSON.parse(raw) : null;
+      if (!raw) return null;
+      var pref = JSON.parse(raw);
+      // 修正异常值：音量为 0 时恢复默认
+      if (!pref.volume || pref.volume < 0.01) pref.volume = 0.08;
+      return pref;
     } catch(e) { return null; }
   }
   function saveMusicPref(pref) {
@@ -836,7 +840,16 @@ var ChatSystem = (function () {
     if (musicAudio) {
       if (musicAudio.src.indexOf(src) !== -1) {
         musicAudio.volume = musicPref.volume;
-        if (musicAudio.paused) musicAudio.play().catch(function(){});
+        if (musicAudio.paused) {
+          musicAudio.play().catch(function () {
+            document.addEventListener('click', function retry() {
+              if (musicAudio && musicAudio.paused && musicPref && musicPref.style) {
+                musicAudio.play().catch(function () {});
+              }
+              document.removeEventListener('click', retry);
+            }, { once: true });
+          });
+        }
         return;
       }
       musicAudio.pause();
@@ -845,7 +858,18 @@ var ChatSystem = (function () {
     musicAudio = new Audio(src);
     musicAudio.loop = true;
     musicAudio.volume = musicPref.volume;
-    musicAudio.play().catch(function(){});
+    musicAudio.play().catch(function () {
+      // 自动播放被浏览器阻止，等下次点击时重试
+      var retry = function () {
+        if (musicAudio && musicAudio.paused && musicPref && musicPref.style) {
+          musicAudio.play().catch(function () {});
+        }
+        document.removeEventListener('click', retry);
+        document.removeEventListener('touchend', retry);
+      };
+      document.addEventListener('click', retry, { once: true });
+      document.addEventListener('touchend', retry, { once: true });
+    });
   }
   function stopMusic() {
     if (musicAudio) {
