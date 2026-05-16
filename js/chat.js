@@ -37,8 +37,10 @@ var ChatSystem = (function () {
     '· 开心 → 分享这份轻盈\n' +
     '· 迷茫 → 帮对方梳理感受，但不给建议\n' +
     '偶尔轻柔地命名对方的情绪。永远不要分析、诊断、给建议。你只是陪伴。\n\n' +
-    '严格用JSON格式回复，不要加任何其他文字：\n' +
-    '{"reply":"你的回复（2-4句话）","mood":"对方的情绪（悲伤/焦虑/愤怒/平静/开心/迷茫）"}';
+    '在回复末尾加上情绪标签，格式：[mood:情绪]\n' +
+    '情绪选项：悲伤/焦虑/愤怒/平静/开心/迷茫\n' +
+    '示例："我听到了，今天对你来说很不容易。[mood:悲伤]"\n' +
+    '标签不会显示给用户，务必在每条回复末尾加上。';
 
   // API 地址（部署后替换为 Vercel 域名）
   var API_URL = 'https://first-website-lovat-delta.vercel.app/api/chat';
@@ -547,29 +549,25 @@ var ChatSystem = (function () {
     var stars = MOOD_STARS[mood] || MOOD_STARS['平静'];
     overlay.style.setProperty('--text-glow', color);
     overlay.style.setProperty('--star-brightness', stars);
+    // 短暂脉冲反馈情绪被感知
+    fadeText.classList.remove('mood-pulse');
+    void fadeText.offsetWidth;
+    fadeText.classList.add('mood-pulse');
   }
 
-  // ── AI回复解析 ──
+  // ── AI回复解析：从末尾标签提取 mood ──
   function parseAIResponse(raw) {
-    try {
-      var parsed = JSON.parse(raw);
-      if (parsed.reply) return parsed;
-    } catch(e) {}
-    var md = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (md) {
-      try {
-        var parsed = JSON.parse(md[1]);
-        if (parsed.reply) return parsed;
-      } catch(e) {}
+    var mood = '平静';
+    var reply = raw;
+    var m = raw.match(/\[mood:([^\]]+)\]\s*$/);
+    if (m) {
+      var extracted = m[1].trim();
+      if (MOOD_COLORS[extracted]) {
+        mood = extracted;
+      }
+      reply = raw.replace(/\[mood:[^\]]+\]\s*$/, '').trim();
     }
-    var obj = raw.match(/\{[\s\S]*"reply"[\s\S]*\}/);
-    if (obj) {
-      try {
-        var parsed = JSON.parse(obj[0]);
-        if (parsed.reply) return parsed;
-      } catch(e) {}
-    }
-    return { reply: raw, mood: '平静' };
+    return { reply: reply || raw, mood: mood };
   }
 
   // ── 情绪弧线 ──

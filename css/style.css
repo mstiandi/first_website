@@ -190,6 +190,15 @@ canvas { display: block; }
 #chat-fade-text.fade-in {
   animation: fadeIn 0.25s linear forwards;
 }
+/* mood 感知脉冲 */
+@keyframes moodPulse {
+  0%   { text-shadow: 0 0 4px var(--text-glow), 0 0 8px var(--text-glow); }
+  50%  { text-shadow: 0 0 28px var(--text-glow), 0 0 56px var(--text-glow); }
+  100% { text-shadow: 0 0 18px var(--text-glow), 0 0 40px rgba(142,164,192,0.06); }
+}
+#chat-fade-text.mood-pulse {
+  animation: moodPulse 0.5s ease-out;
+}
 /* 用户发送：向上平移 + 淡出 */
 #chat-fade-text.fade-up {
   opacity: 0;
