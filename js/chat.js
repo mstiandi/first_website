@@ -162,10 +162,11 @@ var ChatSystem = (function () {
         fadeText.classList.add('fade-down');
         setTimeout(function () {
           fadeText.classList.remove('fade-down');
+          fadeText.style.transition = 'none';
           fadeText.style.transform = '';
-          fadeText.style.transition = '';
-          fadeText.style.opacity = '0';
+          fadeText.style.opacity = '';
           fadeText.textContent = '';
+          fadeText.offsetHeight;
           if (active) startTyping();
         }, 500);
       }, Math.max(2000, reply.length * 80));
@@ -186,10 +187,11 @@ var ChatSystem = (function () {
         fadeText.classList.add('fade-down');
         setTimeout(function () {
           fadeText.classList.remove('fade-down');
+          fadeText.style.transition = 'none';
           fadeText.style.transform = '';
-          fadeText.style.transition = '';
-          fadeText.style.opacity = '0';
+          fadeText.style.opacity = '';
           fadeText.textContent = '';
+          fadeText.offsetHeight;
           if (active) startTyping();
         }, 500);
       }, 2500);
@@ -197,15 +199,13 @@ var ChatSystem = (function () {
   }
 
   function showText(txt) {
-    // 瞬间重置：去动画类、去内联样式、去过渡，然后从零开始显示
     fadeText.classList.remove('fade-up', 'fade-down');
+    // 瞬间清除所有行内样式，让 CSS 类和默认值接管
     fadeText.style.transition = 'none';
-    fadeText.style.transform = 'none';
-    fadeText.style.opacity = '1';
+    fadeText.style.transform = '';
+    fadeText.style.opacity = '';
     fadeText.textContent = txt;
-    // 强制回流确保 none 已生效
     fadeText.offsetHeight;
-    fadeText.style.transition = '';
   }
 
   function randomFrom(arr) {
