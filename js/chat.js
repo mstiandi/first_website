@@ -617,7 +617,7 @@ var ChatSystem = (function () {
     setTimeout(function() {
       arc.style.opacity = '0';
       setTimeout(function() { arc.remove(); }, 600);
-    }, 2100);
+    }, 3000);
   }
 
   function onChatMouseDown(e) {
