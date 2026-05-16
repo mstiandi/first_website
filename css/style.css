@@ -43,7 +43,7 @@ canvas { display: block; }
 #chat-overlay.active {
   opacity: 1; pointer-events: auto;
   background: var(--bg-color);
-  transition: background 5s, opacity 0.8s;
+  transition: background 0.6s, opacity 0.8s;
 }
 
 /* 星空点缀 */

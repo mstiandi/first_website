@@ -7,6 +7,7 @@ var ChatSystem = (function () {
   var cursorTimer = null;
   var dragStartY = 0, dragActive = false, dragThreshold = 60;
   var starTimer = null;
+  var welcomeTimer = null;
 
   // 对话历史（本地内存，不持久化）
   var conversation = [];
@@ -78,14 +79,18 @@ var ChatSystem = (function () {
     currentMood = '平静';
     applyMood('平静');
     scheduleShootingStars();
-    setTimeout(function () {
+    clearTimeout(welcomeTimer);
+    welcomeTimer = setTimeout(function () {
+      if (!active) return;
       conversation.push({ role: 'assistant', content: WELCOME_TEXT });
       showText(WELCOME_TEXT, true);
       AudioEngine.playChime();
-      setTimeout(function () {
+      welcomeTimer = setTimeout(function () {
+        if (!active) return;
         fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
         fadeText.classList.add('fade-down');
-        setTimeout(function () {
+        welcomeTimer = setTimeout(function () {
+          if (!active) return;
           fadeText.classList.remove('fade-down', 'fade-in');
           fadeText.style.transition = 'none';
           fadeText.style.transform = '';
@@ -109,6 +114,7 @@ var ChatSystem = (function () {
     clearTimeout(fadeTimer);
     clearTimeout(cursorTimer);
     clearTimeout(starTimer);
+    clearTimeout(welcomeTimer);
     // 清除所有流星元素
     var stars = overlay.querySelectorAll('.shooting-star');
     for (var s = 0; s < stars.length; s++) stars[s].remove();
@@ -163,6 +169,7 @@ var ChatSystem = (function () {
 
   function sendMessage(text) {
     cancelSpeech();
+    clearTimeout(welcomeTimer);
     typing = false;
     cursor.classList.remove('visible');
     clearTimeout(cursorTimer);
@@ -617,6 +624,8 @@ var ChatSystem = (function () {
     overlay.style.setProperty('--star-brightness', stars);
     overlay.style.setProperty('--bg-color', bg);
     overlay.style.setProperty('--text-color', text);
+    // 情绪色用慢过渡（非首次进入时）
+    overlay.style.transition = 'background 3s, opacity 0.8s';
     // 短暂脉冲反馈情绪被感知
     fadeText.classList.remove('mood-pulse');
     void fadeText.offsetWidth;
@@ -627,13 +636,15 @@ var ChatSystem = (function () {
   function parseAIResponse(raw) {
     var mood = '平静';
     var reply = raw;
+    // 匹配 [mood:xxx] 或 [🌙 xxx] 等任何方括号包含已知情绪的格式
     var m = raw.match(/\[mood:([^\]]+)\]\s*$/);
+    if (!m) m = raw.match(/\[[^\[\]]*?(悲伤|焦虑|愤怒|平静|开心|迷茫)[^\[\]]*?\]\s*$/);
     if (m) {
-      var extracted = m[1].trim();
-      if (MOOD_COLORS[extracted]) {
-        mood = extracted;
-      }
-      reply = raw.replace(/\[mood:[^\]]+\]\s*$/, '').trim();
+      var extracted = (m[1] || '').trim();
+      // 从可能包含装饰符号的文本中提取情绪
+      var clean = extracted.replace(/[^一-龥]/g, '');
+      if (MOOD_COLORS[clean]) mood = clean;
+      reply = raw.replace(/\[[^\]]*?(?:悲伤|焦虑|愤怒|平静|开心|迷茫)[^\]]*?\]\s*$/, '').trim();
     }
     return { reply: reply || raw, mood: mood };
   }
