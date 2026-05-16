@@ -127,19 +127,13 @@ var ChatSystem = (function () {
     cursor.classList.remove('visible');
     clearTimeout(cursorTimer);
 
-    // 显示用户文字
-    fadeText.style.opacity = '0';
+    // 确保文字显示（onInput 已显示，此处兜底），不闪不跳直接等淡出
+    showText(text);
+    conversation.push({ role: 'user', content: text });
     setTimeout(function () {
-      showText(text);
-      // 保存到对话历史
-      conversation.push({ role: 'user', content: text });
-
-      // 请求 AI 回复
-      setTimeout(function () {
-        fadeText.style.opacity = '0';
-        fetchAIResponse();
-      }, 750);
-    }, 400);
+      fadeText.style.opacity = '0';
+      fetchAIResponse();
+    }, 500);
   }
 
   function fetchAIResponse() {
