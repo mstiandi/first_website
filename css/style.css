@@ -193,14 +193,14 @@ canvas { display: block; }
 #chat-fade-text.fade-in {
   animation: fadeIn 0.25s linear forwards;
 }
-/* mood 感知脉冲 */
+/* mood 感知脉冲 — 0.5s 强光闪过后消散 */
 @keyframes moodPulse {
   0%   { text-shadow: 0 0 4px var(--text-glow), 0 0 8px var(--text-glow); }
-  50%  { text-shadow: 0 0 28px var(--text-glow), 0 0 56px var(--text-glow); }
-  100% { text-shadow: 0 0 18px var(--text-glow), 0 0 40px rgba(142,164,192,0.06); }
+  30%  { text-shadow: 0 0 36px var(--text-glow), 0 0 72px var(--text-glow), 0 0 100px var(--text-glow); }
+  100% { text-shadow: 0 0 2px var(--text-glow), 0 0 4px rgba(142,164,192,0.03); }
 }
 #chat-fade-text.mood-pulse {
-  animation: moodPulse 0.5s ease-out;
+  animation: moodPulse 0.5s ease-out forwards;
 }
 /* 用户发送：向上平移 + 淡出 */
 #chat-fade-text.fade-up {
@@ -303,7 +303,19 @@ canvas { display: block; }
 }
 
 #chat-input {
-  position: absolute; opacity: 0; pointer-events: none;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none; outline: none;
+  color: transparent;
+  caret-color: var(--text-glow);
+  font-family: "Noto Serif SC", serif;
+  font-size: 1.2rem; letter-spacing: 2px;
+  text-align: center;
+  width: 360px;
+  opacity: 1;
+  z-index: 52;
 }
 
 /* ═══════════ CSS 3D 全景场景 ═══════════ */
