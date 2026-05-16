@@ -404,6 +404,12 @@ canvas { display: block; }
 }
 .voice-option:hover { color: #c8dff0; background: rgba(142, 164, 192, 0.08); }
 .voice-option.active { color: #c8dff0; }
+.voice-volume-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  border-bottom: 1px solid rgba(142, 164, 192, 0.1);
+}
 
 /* ═══════════ 情绪弧线 ═══════════ */
 .emotion-arc {

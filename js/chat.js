@@ -80,6 +80,7 @@ var ChatSystem = (function () {
     window.addEventListener('mouseup', onChatMouseUp);
 
     voicePref = loadVoicePref();
+    if (voicePref && voicePref.volume == null) voicePref.volume = 1.0;
     buildVoiceSelector();
     musicPref = loadMusicPref();
     buildMusicSelector();
@@ -463,8 +464,7 @@ var ChatSystem = (function () {
       }
     }
     currentUtterance = utter;
-    duckMusic(true);
-    utter.addEventListener('end', function () { duckMusic(false); });
+    if (voicePref) utter.volume = voicePref.volume != null ? voicePref.volume : 1.0;
     synth.speak(utter);
     return utter;
   }
@@ -514,6 +514,29 @@ var ChatSystem = (function () {
       selectVoice(null, true);
     });
     voicePanel.appendChild(mutedOpt);
+
+    // 朗读音量滑块
+    var volRow = document.createElement('div');
+    volRow.className = 'voice-volume-row';
+    var volLabel = document.createElement('span');
+    volLabel.className = 'music-label';
+    volLabel.textContent = '音量';
+    volRow.appendChild(volLabel);
+    var volSlider = document.createElement('input');
+    volSlider.type = 'range';
+    volSlider.className = 'music-slider';
+    volSlider.min = '0.2';
+    volSlider.max = '1.0';
+    volSlider.step = '0.05';
+    volSlider.value = (voicePref && voicePref.volume != null) ? voicePref.volume : 1.0;
+    volSlider.addEventListener('input', function(e) {
+      if (!voicePref) voicePref = { voiceName: null, muted: false, volume: 1.0 };
+      voicePref.volume = parseFloat(e.target.value);
+      saveVoicePref(voicePref);
+    });
+    volSlider.addEventListener('mousedown', function(e) { e.stopPropagation(); });
+    volRow.appendChild(volSlider);
+    voicePanel.appendChild(volRow);
 
     var voices = window.speechSynthesis ? window.speechSynthesis.getVoices() : [];
     var zhVoices = [];
