@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&display=swap');
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
@@ -34,6 +35,8 @@ canvas { display: block; }
   transition: background 1.2s, opacity 0.8s;
   background: transparent;
   overflow: hidden;
+  --text-glow: #8ea4c0;
+  --star-brightness: 0.55;
 }
 #chat-overlay.active {
   opacity: 1; pointer-events: auto;
@@ -59,7 +62,8 @@ canvas { display: block; }
   transition: opacity 2s;
 }
 #chat-overlay.active .stars {
-  opacity: 1;
+  opacity: var(--star-brightness);
+  transition: opacity 3s;
 }
 #chat-overlay .stars::before,
 #chat-overlay .stars::after {
@@ -68,90 +72,115 @@ canvas { display: block; }
   width: 2px; height: 2px;
   border-radius: 50%;
   background: white;
-  animation: twinkle 3s ease-in-out infinite alternate;
+  animation: twinkle 6s ease-in-out infinite alternate;
 }
 #chat-overlay .stars::before {
-  top: 12%; left: 18%;
+  top: 5%; left: 10%;
   box-shadow:
-    40px 15px 0 0 rgba(255,255,255,0.9),
-    120px 60px 0 0 rgba(255,255,255,0.6),
-    200px 30px 0 0 rgba(255,255,255,0.8),
-    300px 80px 0 0 rgba(255,255,255,0.5),
-    500px 20px 0 0 rgba(255,255,255,0.7),
-    80px 120px 0 0 rgba(255,255,255,0.8),
-    250px 140px 0 0 rgba(255,255,255,0.6),
-    450px 100px 0 0 rgba(255,255,255,0.9),
-    600px 150px 0 0 rgba(255,255,255,0.5),
-    700px 40px 0 0 rgba(255,255,255,0.7),
-    150px 200px 0 0 rgba(255,255,255,0.8),
-    380px 220px 0 0 rgba(255,255,255,0.6),
-    550px 250px 0 0 rgba(255,255,255,1.0),
-    100px 300px 0 0 rgba(255,255,255,0.5),
-    280px 330px 0 0 rgba(255,255,255,0.7),
-    480px 350px 0 0 rgba(255,255,255,0.6),
-    680px 300px 0 0 rgba(255,255,255,0.8),
-    60px 400px 0 0 rgba(255,255,255,0.7),
-    320px 420px 0 0 rgba(255,255,255,0.9),
-    620px 430px 0 0 rgba(255,255,255,0.5),
-    760px 80px 0 0 rgba(255,255,255,0.7),
-    580px 380px 0 0 rgba(255,255,255,0.6),
-    340px 40px 0 0 rgba(255,255,255,0.8),
-    190px 340px 0 0 rgba(255,255,255,0.5),
-    50px 220px 0 0 rgba(255,255,255,0.9),
-    430px 150px 0 0 rgba(255,255,255,0.7),
-    670px 200px 0 0 rgba(255,255,255,0.6),
-    160px 460px 0 0 rgba(255,255,255,0.5),
-    510px 450px 0 0 rgba(255,255,255,0.8),
-    730px 420px 0 0 rgba(255,255,255,0.6);
+    30px 20px 0 0 rgba(255,255,255,0.7),
+    90px 50px 0 0 rgba(255,255,255,0.4),
+    170px 30px 0 0 rgba(255,255,255,0.6),
+    260px 70px 0 0 rgba(255,255,255,0.35),
+    360px 15px 0 0 rgba(255,255,255,0.55),
+    440px 55px 0 0 rgba(255,255,255,0.4),
+    530px 25px 0 0 rgba(255,255,255,0.7),
+    620px 65px 0 0 rgba(255,255,255,0.35),
+    700px 10px 0 0 rgba(255,255,255,0.5),
+    760px 45px 0 0 rgba(255,255,255,0.6),
+    55px 110px 0 0 rgba(255,255,255,0.5),
+    140px 140px 0 0 rgba(255,255,255,0.35),
+    250px 120px 0 0 rgba(255,255,255,0.65),
+    380px 160px 0 0 rgba(255,255,255,0.4),
+    480px 130px 0 0 rgba(255,255,255,0.55),
+    590px 170px 0 0 rgba(255,255,255,0.35),
+    680px 140px 0 0 rgba(255,255,255,0.5),
+    750px 100px 0 0 rgba(255,255,255,0.6),
+    80px 220px 0 0 rgba(255,255,255,0.4),
+    200px 250px 0 0 rgba(255,255,255,0.6),
+    330px 230px 0 0 rgba(255,255,255,0.35),
+    460px 270px 0 0 rgba(255,255,255,0.55),
+    580px 240px 0 0 rgba(255,255,255,0.45),
+    670px 210px 0 0 rgba(255,255,255,0.35),
+    40px 320px 0 0 rgba(255,255,255,0.5),
+    150px 340px 0 0 rgba(255,255,255,0.35),
+    290px 310px 0 0 rgba(255,255,255,0.6),
+    420px 360px 0 0 rgba(255,255,255,0.45),
+    540px 330px 0 0 rgba(255,255,255,0.35),
+    650px 350px 0 0 rgba(255,255,255,0.55),
+    730px 320px 0 0 rgba(255,255,255,0.4),
+    100px 430px 0 0 rgba(255,255,255,0.5),
+    240px 450px 0 0 rgba(255,255,255,0.35),
+    370px 420px 0 0 rgba(255,255,255,0.6),
+    500px 460px 0 0 rgba(255,255,255,0.4),
+    630px 440px 0 0 rgba(255,255,255,0.5),
+    720px 410px 0 0 rgba(255,255,255,0.35),
+    20px 500px 0 0 rgba(255,255,255,0.4),
+    180px 520px 0 0 rgba(255,255,255,0.55),
+    320px 500px 0 0 rgba(255,255,255,0.35),
+    460px 530px 0 0 rgba(255,255,255,0.5),
+    600px 510px 0 0 rgba(255,255,255,0.4),
+    700px 520px 0 0 rgba(255,255,255,0.6);
   animation-delay: 0s;
 }
 #chat-overlay .stars::after {
-  top: 8%; left: 25%;
+  top: 12%; left: 22%;
   box-shadow:
-    70px 25px 0 0 rgba(255,255,255,0.7),
-    180px 50px 0 0 rgba(255,255,255,0.9),
-    350px 15px 0 0 rgba(255,255,255,0.6),
-    420px 70px 0 0 rgba(255,255,255,0.8),
-    580px 55px 0 0 rgba(255,255,255,0.5),
-    30px 100px 0 0 rgba(255,255,255,1.0),
-    160px 170px 0 0 rgba(255,255,255,0.6),
-    330px 160px 0 0 rgba(255,255,255,0.8),
-    520px 180px 0 0 rgba(255,255,255,0.7),
-    660px 130px 0 0 rgba(255,255,255,0.5),
-    90px 260px 0 0 rgba(255,255,255,0.6),
-    240px 280px 0 0 rgba(255,255,255,0.8),
-    410px 270px 0 0 rgba(255,255,255,0.7),
-    570px 310px 0 0 rgba(255,255,255,0.9),
-    700px 250px 0 0 rgba(255,255,255,0.5),
-    50px 360px 0 0 rgba(255,255,255,0.8),
-    210px 380px 0 0 rgba(255,255,255,0.6),
-    460px 400px 0 0 rgba(255,255,255,0.9),
-    640px 370px 0 0 rgba(255,255,255,0.5),
-    170px 450px 0 0 rgba(255,255,255,0.7),
-    310px 50px 0 0 rgba(255,255,255,0.8),
-    500px 30px 0 0 rgba(255,255,255,0.6),
-    120px 80px 0 0 rgba(255,255,255,0.9),
-    600px 90px 0 0 rgba(255,255,255,0.5),
-    250px 440px 0 0 rgba(255,255,255,0.7),
-    690px 450px 0 0 rgba(255,255,255,0.6),
-    380px 120px 0 0 rgba(255,255,255,0.8),
-    100px 180px 0 0 rgba(255,255,255,0.5),
-    480px 440px 0 0 rgba(255,255,255,0.7),
-    720px 100px 0 0 rgba(255,255,255,0.9);
-  animation-delay: 1.5s;
+    60px 15px 0 0 rgba(255,255,255,0.5),
+    150px 40px 0 0 rgba(255,255,255,0.65),
+    270px 20px 0 0 rgba(255,255,255,0.4),
+    400px 50px 0 0 rgba(255,255,255,0.55),
+    510px 10px 0 0 rgba(255,255,255,0.35),
+    640px 35px 0 0 rgba(255,255,255,0.6),
+    20px 90px 0 0 rgba(255,255,255,0.7),
+    130px 110px 0 0 rgba(255,255,255,0.4),
+    280px 100px 0 0 rgba(255,255,255,0.55),
+    410px 120px 0 0 rgba(255,255,255,0.35),
+    550px 95px 0 0 rgba(255,255,255,0.6),
+    680px 80px 0 0 rgba(255,255,255,0.45),
+    750px 60px 0 0 rgba(255,255,255,0.55),
+    90px 190px 0 0 rgba(255,255,255,0.4),
+    220px 200px 0 0 rgba(255,255,255,0.6),
+    350px 180px 0 0 rgba(255,255,255,0.35),
+    500px 210px 0 0 rgba(255,255,255,0.55),
+    630px 190px 0 0 rgba(255,255,255,0.45),
+    720px 170px 0 0 rgba(255,255,255,0.35),
+    50px 290px 0 0 rgba(255,255,255,0.5),
+    190px 300px 0 0 rgba(255,255,255,0.35),
+    340px 280px 0 0 rgba(255,255,255,0.6),
+    470px 310px 0 0 rgba(255,255,255,0.45),
+    610px 290px 0 0 rgba(255,255,255,0.55),
+    740px 270px 0 0 rgba(255,255,255,0.35),
+    70px 390px 0 0 rgba(255,255,255,0.55),
+    210px 400px 0 0 rgba(255,255,255,0.35),
+    360px 380px 0 0 rgba(255,255,255,0.6),
+    490px 410px 0 0 rgba(255,255,255,0.45),
+    650px 390px 0 0 rgba(255,255,255,0.35),
+    130px 490px 0 0 rgba(255,255,255,0.5),
+    280px 510px 0 0 rgba(255,255,255,0.6),
+    430px 480px 0 0 rgba(255,255,255,0.4),
+    570px 500px 0 0 rgba(255,255,255,0.55),
+    690px 490px 0 0 rgba(255,255,255,0.35),
+    40px 570px 0 0 rgba(255,255,255,0.45),
+    310px 560px 0 0 rgba(255,255,255,0.55),
+    510px 570px 0 0 rgba(255,255,255,0.35),
+    670px 550px 0 0 rgba(255,255,255,0.5);
+  animation-delay: 3s;
 }
 @keyframes twinkle {
-  0% { opacity: 0.4; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
+  0% { opacity: 0.25; }
+  50% { opacity: 0.75; }
+  100% { opacity: 0.2; }
 }
 
 #chat-fade-text {
-  color: rgba(255,255,255,0.6);
-  font-size: 1.3rem; letter-spacing: 2px;
-  text-align: center; max-width: 340px;
-  line-height: 2.2;
+  font-family: "Noto Serif SC", "STSong", "Songti SC", "SimSun", serif;
+  color: var(--text-glow);
+  font-size: 1.2rem; letter-spacing: 2px;
+  text-align: center; max-width: 360px;
+  line-height: 2.4;
   opacity: 1;
+  transition: color 3s;
+  text-shadow: 0 0 18px var(--text-glow), 0 0 40px rgba(142, 164, 192, 0.06);
 }
 /* AI回复出现：由暗变亮 */
 @keyframes fadeIn {
@@ -174,13 +203,92 @@ canvas { display: block; }
 
 #chat-cursor {
   width: 2px; height: 1.3rem;
-  background: rgba(255,255,255,0.3);
+  background: var(--text-glow);
   margin-top: -1px;
-  animation: blink 1.4s step-end infinite;
   opacity: 0;
+  transition: background 3s;
+  box-shadow: 0 0 8px var(--text-glow);
 }
-#chat-cursor.visible { opacity: 1; }
-@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+#chat-cursor.visible {
+  opacity: 1;
+  animation: blinkCaret 1.6s step-end infinite;
+}
+@keyframes blinkCaret {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ── 卫星再入大气层式流星 ── */
+.shooting-star {
+  position: absolute;
+  pointer-events: none;
+  z-index: 51;
+}
+/* 等离子冲击波 — 头部最外层光晕 */
+.shooting-star .shock {
+  position: absolute;
+  right: -10px; top: -14px;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180, 210, 240, 0.35) 0%, rgba(120, 160, 200, 0.1) 40%, transparent 70%);
+  box-shadow: 0 0 20px rgba(160, 200, 240, 0.4), 0 0 50px rgba(120, 160, 210, 0.2);
+  animation: shockPulse 0.3s ease-in-out infinite alternate;
+}
+@keyframes shockPulse {
+  0%   { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+/* 头部核心 — 白热内核 */
+.shooting-star .head {
+  position: absolute;
+  right: -3px; top: -4px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 55% 45%, #fff 0%, #c8e0ff 25%, #8eb8e0 60%, transparent 80%);
+  box-shadow:
+    0 0 6px #fff,
+    0 0 16px rgba(200, 230, 255, 0.95),
+    0 0 36px rgba(150, 200, 240, 0.6),
+    0 0 60px rgba(110, 160, 210, 0.3);
+}
+/* 尾迹 — 楔形发散拖尾 */
+.shooting-star .tail {
+  position: absolute;
+  right: 4px;
+  top: -5px;
+  height: 10px;
+  background: linear-gradient(to left,
+    rgba(240, 248, 255, 0.95) 0%,
+    rgba(180, 210, 240, 0.75) 10%,
+    rgba(130, 175, 215, 0.35) 35%,
+    rgba(100, 145, 190, 0.08) 65%,
+    transparent 100%);
+  clip-path: polygon(0% 44%, 100% 0%, 100% 100%, 0% 56%);
+  box-shadow:
+    0 0 8px rgba(150, 195, 235, 0.3),
+    0 0 20px rgba(130, 175, 215, 0.12);
+  filter: blur(0.5px);
+}
+/* 飞散粒子 */
+.shooting-star .spark {
+  position: absolute;
+  border-radius: 50%;
+  background: #c8e0ff;
+  box-shadow: 0 0 4px rgba(180, 210, 240, 0.6);
+  animation: sparkDrift var(--sparkDur) ease-out forwards;
+}
+@keyframes sparkDrift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  60%  { opacity: 0.5; }
+  100% { transform: translate(var(--sparkX), var(--sparkY)) scale(0.2); opacity: 0; }
+}
+/* 主体动画 */
+@keyframes shootAcross {
+  0%   { opacity: 0; transform: rotate(var(--angle)) translateX(0); }
+  6%   { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateX(var(--dist)); }
+}
 
 #chat-input {
   position: absolute; opacity: 0; pointer-events: none;
@@ -220,4 +328,72 @@ canvas { display: block; }
   font-size: 0.8rem; letter-spacing: 2px;
   z-index: 20; pointer-events: none;
   transition: opacity 1.5s;
+}
+
+/* ═══════════ 音色选择器 ═══════════ */
+.voice-btn {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 55;
+  transition: opacity 0.5s;
+  display: flex; align-items: center; justify-content: center;
+}
+.voice-btn:hover { opacity: 1 !important; }
+.voice-btn.muted { opacity: 0.35; }
+#chat-overlay.active .voice-btn { opacity: 0.45; }
+
+.voice-panel {
+  position: absolute;
+  top: 52px; right: 16px;
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(142, 164, 192, 0.2);
+  border-radius: 6px;
+  padding: 6px 0;
+  min-width: 180px;
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 55;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.voice-panel.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0);
+}
+.voice-group-label {
+  padding: 6px 14px 2px;
+  font-size: 0.65rem;
+  color: rgba(142, 164, 192, 0.45);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.voice-option {
+  padding: 6px 14px 6px 22px;
+  font-size: 0.75rem;
+  color: rgba(142, 164, 192, 0.7);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.voice-option:hover { color: #c8dff0; background: rgba(142, 164, 192, 0.08); }
+.voice-option.active { color: #c8dff0; }
+
+/* ═══════════ 情绪弧线 ═══════════ */
+.emotion-arc {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 200;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.6s;
+}
+.emotion-arc svg path {
+  transition: stroke-dashoffset 1.5s ease-out;
+}
+@keyframes drawArc {
+  from { stroke-dashoffset: var(--arc-len); }
+  to { stroke-dashoffset: 0; }
 }
