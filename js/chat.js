@@ -54,15 +54,65 @@ var ChatSystem = (function () {
     active = true;
     conversation = [{ role: 'system', content: SYSTEM_PROMPT }];
     overlay.classList.add('active');
+    // 用 AI 生成欢迎语
     setTimeout(function () {
-      showText(randomFrom(greetings));
+      conversation.push({ role: 'user', content: '（刚刚进入聊天）' });
+      fetchWelcome();
+    }, 400);
+  }
+
+  function fetchWelcome() {
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: conversation,
+        provider: PROVIDER
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('API status ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      var reply = data.reply || '有什么想和我说的吗？';
+      conversation.pop(); // 移除触发消息
+      conversation.push({ role: 'assistant', content: reply });
+      showText(reply);
       setTimeout(function () {
-        fadeText.style.opacity = '0';
+        fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
+        fadeText.classList.add('fade-down');
         setTimeout(function () {
+          fadeText.classList.remove('fade-down');
+          fadeText.style.transition = 'none';
+          fadeText.style.transform = '';
+          fadeText.style.opacity = '';
+          fadeText.textContent = '';
+          fadeText.offsetHeight;
           if (active) startTyping();
-        }, 2000);
+        }, 500);
       }, 3000);
-    }, 600);
+    })
+    .catch(function () {
+      // API 不可用时用本地欢迎语兜底
+      var fallback = randomFrom(greetings);
+      conversation.pop();
+      conversation.push({ role: 'assistant', content: fallback });
+      showText(fallback);
+      setTimeout(function () {
+        fadeText.style.transition = 'opacity 0.5s linear, transform 0.5s linear';
+        fadeText.classList.add('fade-down');
+        setTimeout(function () {
+          fadeText.classList.remove('fade-down');
+          fadeText.style.transition = 'none';
+          fadeText.style.transform = '';
+          fadeText.style.opacity = '';
+          fadeText.textContent = '';
+          fadeText.offsetHeight;
+          if (active) startTyping();
+        }, 500);
+      }, 3000);
+    });
   }
 
   function exit() {
