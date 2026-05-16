@@ -6,6 +6,13 @@
 - **入口文件**: `index.html` → `js/main.js` → `js/entrance.js` → `js/scene.js`
 - **本地路径**: `D:/websites/just_me`
 
+## 迭代记录（强制）
+- **每次非细节的大改动（新功能、架构变更、重要修复）** 必须在 `iterations/` 文件夹中新建一个文件
+- 文件命名: `NNN-简短描述.md`（如 `001-mvp-cylindrical-panorama.md`）
+- 使用 `_template.md` 模板，记录目标、改动、踩坑、结果
+- **这是一个强制性要求，不要等用户提醒**
+- 细节改动（改颜色、调参数、修错字）不需要迭代记录
+
 ## 铁律 — 每次改动后必须做
 1. **增量版本号**: `index.html` 中 scene.js 的 `?v=N` 每次提交都要 +1，否则 CDN 缓存旧文件
 2. **浏览器验证**: 改完先用 Playwright 或实际浏览器打开域名确认生效，再报告"完成"
