@@ -38,7 +38,7 @@
       if (entrance && entrance.parentNode) {
         entrance.parentNode.removeChild(entrance);
       }
-    }, 5400);
+    }, 6000);
   }
 
 })();

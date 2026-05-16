@@ -385,7 +385,7 @@ canvas { display: block; }
 
 /* 睁眼动画 — 触发 class */
 #eye-entrance.opening {
-  animation: entranceFadeOut 5.2s ease forwards;
+  animation: entranceDissolve 5.8s ease forwards;
 }
 #eye-entrance.opening .eye-lid-top {
   animation: topLidOpen 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -400,9 +400,10 @@ canvas { display: block; }
   animation: arrivalText 5.2s ease forwards;
 }
 
-@keyframes entranceFadeOut {
-  0%, 82% { background: #000; opacity: 1; }
-  100% { background: transparent; opacity: 0; }
+@keyframes entranceDissolve {
+  0%, 72% { background: #000; opacity: 1; backdrop-filter: blur(0); }
+  85%   { background: #000; opacity: 0.55; backdrop-filter: blur(10px); }
+  100%  { background: transparent; opacity: 0; backdrop-filter: blur(20px); }
 }
 @keyframes topLidOpen {
   0% { transform: translateY(0); }
@@ -429,7 +430,7 @@ canvas { display: block; }
 /* 主画面同步苏醒 */
 body.eye-opening canvas {
   filter: brightness(0.25) blur(12px) saturate(0.65);
-  animation: sceneWake 4.8s ease forwards;
+  animation: sceneWake 5.6s ease forwards;
 }
 @keyframes sceneWake {
   0%   { filter: brightness(0.25) blur(12px) saturate(0.65); }
