@@ -288,8 +288,18 @@ var ChatSystem = (function () {
 
     function finishReply(reply) {
       var utter = speak(reply);
+      var maxReadTime = Math.max(3000, reply.length * 85);
       if (utter) {
-        utter.onend = function () { if (active) doFadeDown(); };
+        var done = false;
+        function onDone() {
+          if (done) return;
+          done = true;
+          if (active) doFadeDown();
+        }
+        utter.onend = onDone;
+        utter.onerror = onDone;
+        // 超时兜底：防止 onend 不触发
+        setTimeout(onDone, maxReadTime);
       } else {
         var readTime = Math.max(2000, reply.length * 80);
         setTimeout(function () { if (active) doFadeDown(); }, readTime);
