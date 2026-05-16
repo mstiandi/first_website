@@ -127,11 +127,10 @@ var ChatSystem = (function () {
     cursor.classList.remove('visible');
     clearTimeout(cursorTimer);
 
-    // 确保文字显示（onInput 已显示，此处兜底），不闪不跳直接等淡出
     showText(text);
     conversation.push({ role: 'user', content: text });
     setTimeout(function () {
-      fadeText.style.opacity = '0';
+      fadeText.classList.add('fade-up');
       fetchAIResponse();
     }, 500);
   }
@@ -154,15 +153,14 @@ var ChatSystem = (function () {
       conversation.push({ role: 'assistant', content: reply });
       showText(reply);
       setTimeout(function () {
-        fadeText.style.opacity = '0';
+        fadeText.classList.add('fade-down');
         setTimeout(function () {
           if (active) startTyping();
-        }, 2000);
+        }, 600);
       }, Math.max(2000, reply.length * 80));
     })
     .catch(function (err) {
       console.warn('AI API 不可用，使用本地回声:', err);
-      // 兜底：本地回声
       var fallback = randomFrom([
         '嗯，我在听。',
         '多说一点。',
@@ -173,15 +171,18 @@ var ChatSystem = (function () {
       conversation.push({ role: 'assistant', content: fallback });
       showText(fallback);
       setTimeout(function () {
-        fadeText.style.opacity = '0';
+        fadeText.classList.add('fade-down');
         setTimeout(function () {
           if (active) startTyping();
-        }, 2000);
+        }, 600);
       }, 2500);
     });
   }
 
   function showText(txt) {
+    // 清除动画类，重置 transform，显示新文字
+    fadeText.classList.remove('fade-up', 'fade-down');
+    fadeText.style.transform = '';
     fadeText.textContent = txt;
     fadeText.style.opacity = '1';
   }

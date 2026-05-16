@@ -151,8 +151,18 @@ canvas { display: block; }
   font-size: 1.3rem; letter-spacing: 2px;
   text-align: center; max-width: 340px;
   line-height: 2.2;
-  transition: opacity 0.6s;
+  transition: opacity 0.6s, transform 0.6s;
   opacity: 1;
+}
+/* 用户发送：向上平移 + 淡出 */
+#chat-fade-text.fade-up {
+  opacity: 0;
+  transform: translateY(-24px);
+}
+/* AI回复消失：向下平移 + 淡出 */
+#chat-fade-text.fade-down {
+  opacity: 0;
+  transform: translateY(24px);
 }
 
 #chat-cursor {
