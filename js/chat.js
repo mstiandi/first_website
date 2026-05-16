@@ -181,34 +181,34 @@ var ChatSystem = (function () {
   }
 
   function fetchAIResponse() {
+    var fullText = '';
+    fadeText.textContent = '';
+    fadeText.style.opacity = '1';
+    fadeText.classList.add('fade-in');
+
     fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: conversation,
-        provider: PROVIDER
+        provider: PROVIDER,
+        stream: true
       })
     })
     .then(function (res) {
       if (!res.ok) throw new Error('API status ' + res.status);
-      return res.json();
-    })
-    .then(function (data) {
-      var raw = data.reply || '嗯。';
-      var parsed = parseAIResponse(raw);
-      var reply = parsed.reply;
-      var mood = parsed.mood || '平静';
-      conversation.push({ role: 'assistant', content: reply });
-      showText(reply, true);
-      applyMood(mood);
-      AudioEngine.playChime();
-      var utter = speak(reply);
-      if (utter) {
-        utter.onend = function () { if (active) doFadeDown(); };
-      } else {
-        var readTime = Math.max(2000, reply.length * 80);
-        setTimeout(function () { if (active) doFadeDown(); }, readTime);
-      }
+      var ct = res.headers.get('Content-Type') || '';
+      if (ct.indexOf('text/event-stream') !== -1) return readStream(res);
+      // 非流式回退（Vercel 函数未更新时）
+      return res.json().then(function (data) {
+        var raw = data.reply || '嗯。';
+        var parsed = parseAIResponse(raw);
+        conversation.push({ role: 'assistant', content: parsed.reply });
+        showText(parsed.reply, true);
+        applyMood(parsed.mood);
+        AudioEngine.playChime();
+        finishReply(parsed.reply);
+      });
     })
     .catch(function (err) {
       console.warn('AI API 不可用，使用本地回声:', err);
@@ -216,13 +216,61 @@ var ChatSystem = (function () {
       conversation.push({ role: 'assistant', content: fallback });
       showText(fallback, true);
       AudioEngine.playChime();
-      var utter = speak(fallback);
+      finishReply(fallback);
+    });
+
+    function readStream(res) {
+      var reader = res.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+
+      function pump() {
+        return reader.read().then(function (result) {
+          if (result.done) { finalizeStream(fullText); return; }
+          buffer += decoder.decode(result.value, { stream: true });
+          var events = buffer.split('\n\n');
+          buffer = events.pop() || '';
+          for (var i = 0; i < events.length; i++) {
+            if (!events[i].trim()) continue;
+            var lines = events[i].split('\n');
+            for (var j = 0; j < lines.length; j++) {
+              if (lines[j].indexOf('data: ') !== 0) continue;
+              var payload = lines[j].substring(6);
+              if (payload === '[DONE]') { finalizeStream(fullText); return; }
+              try {
+                var chunk = JSON.parse(payload);
+                var content = chunk.choices[0].delta.content;
+                if (content) {
+                  fullText += content;
+                  fadeText.textContent = fullText;
+                }
+              } catch(e) {}
+            }
+          }
+          return pump();
+        });
+      }
+      return pump();
+    }
+
+    function finalizeStream(rawText) {
+      var parsed = parseAIResponse(rawText);
+      conversation.push({ role: 'assistant', content: parsed.reply });
+      fadeText.textContent = parsed.reply;
+      applyMood(parsed.mood);
+      AudioEngine.playChime();
+      finishReply(parsed.reply);
+    }
+
+    function finishReply(reply) {
+      var utter = speak(reply);
       if (utter) {
         utter.onend = function () { if (active) doFadeDown(); };
       } else {
-        setTimeout(function () { if (active) doFadeDown(); }, 2500);
+        var readTime = Math.max(2000, reply.length * 80);
+        setTimeout(function () { if (active) doFadeDown(); }, readTime);
       }
-    });
+    }
   }
 
   function showText(txt, fadeIn) {
@@ -542,13 +590,33 @@ var ChatSystem = (function () {
     '开心': '0.75',
     '迷茫': '0.45'
   };
+  var MOOD_BG = {
+    '悲伤': '#000000',
+    '焦虑': '#06080c',
+    '愤怒': '#0c0606',
+    '平静': '#060c08',
+    '开心': '#0c0a04',
+    '迷茫': '#0a060c'
+  };
+  var MOOD_TEXT = {
+    '悲伤': '#8ea4c0',
+    '焦虑': '#9aaec0',
+    '愤怒': '#c09a9a',
+    '平静': '#9ab89a',
+    '开心': '#c0b88e',
+    '迷茫': '#b89ac0'
+  };
   function applyMood(mood) {
     currentMood = mood;
     moodTrail.push(mood);
     var color = MOOD_COLORS[mood] || MOOD_COLORS['平静'];
     var stars = MOOD_STARS[mood] || MOOD_STARS['平静'];
+    var bg = MOOD_BG[mood] || MOOD_BG['平静'];
+    var text = MOOD_TEXT[mood] || MOOD_TEXT['平静'];
     overlay.style.setProperty('--text-glow', color);
     overlay.style.setProperty('--star-brightness', stars);
+    overlay.style.setProperty('--bg-color', bg);
+    overlay.style.setProperty('--text-color', text);
     // 短暂脉冲反馈情绪被感知
     fadeText.classList.remove('mood-pulse');
     void fadeText.offsetWidth;

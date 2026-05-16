@@ -37,10 +37,13 @@ canvas { display: block; }
   overflow: hidden;
   --text-glow: #8ea4c0;
   --star-brightness: 0.55;
+  --bg-color: #000000;
+  --text-color: #8ea4c0;
 }
 #chat-overlay.active {
   opacity: 1; pointer-events: auto;
-  background: #000;
+  background: var(--bg-color);
+  transition: background 5s, opacity 0.8s;
 }
 
 /* 星空点缀 */
@@ -174,12 +177,12 @@ canvas { display: block; }
 
 #chat-fade-text {
   font-family: "Noto Serif SC", "STSong", "Songti SC", "SimSun", serif;
-  color: var(--text-glow);
+  color: var(--text-color);
   font-size: 1.2rem; letter-spacing: 2px;
   text-align: center; max-width: 360px;
   line-height: 2.4;
   opacity: 1;
-  transition: color 3s;
+  transition: color 4s;
   text-shadow: 0 0 18px var(--text-glow), 0 0 40px rgba(142, 164, 192, 0.06);
 }
 /* AI回复出现：由暗变亮 */
