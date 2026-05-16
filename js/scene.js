@@ -10,9 +10,8 @@ var pickedScene = SCENES[Math.floor(Math.random() * SCENES.length)];
 var MainScene = (function () {
   var scene, camera, renderer;
   var currentRotation = 0, targetRotation = 0;
-  var animId = null;
   var mouseX = 0.5;
-  var dragStartX = 0, dragStartY = 0, dragActive = false, dragThreshold = 70;
+  var dragStartY = 0, dragActive = false, dragThreshold = 70;
   var transitionActive = false;
   var maxRotRight = 30 * Math.PI / 180;
   var maxRotLeft  = -30 * Math.PI / 180;
@@ -380,7 +379,7 @@ var MainScene = (function () {
 
   // ═══════════ 渲染循环 ═══════════
   function loop() {
-    animId = requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
 
     if (entranceWaiting) {
       renderer.render(scene, camera);
@@ -505,7 +504,6 @@ var MainScene = (function () {
     if (entrancePlaying) return;
     if (currentMode === 'selector') {
       dragActive = true;
-      dragStartX = e.clientX;
       dragStartY = e.clientY;
       clickStartX = e.clientX;
       clickStartY = e.clientY;
@@ -513,7 +511,6 @@ var MainScene = (function () {
     }
     if (ChatSystem.isActive()) return;
     dragActive = true;
-    dragStartX = e.clientX;
     dragStartY = e.clientY;
   }
 

@@ -3,7 +3,6 @@ var ChatSystem = (function () {
   var overlay, fadeText, cursor, input;
   var active = false;
   var typing = false;
-  var fadeTimer = null;
   var cursorTimer = null;
   var dragStartY = 0, dragActive = false, dragThreshold = 60;
   var starTimer = null;
@@ -34,20 +33,19 @@ var ChatSystem = (function () {
     'melancholic': 'music/Mr FijiWiji,Danyka Nadeau - Yours Truly.mp3'
   };
 
-  // 情绪弧线容器
-  var emotionArc = null;
-
   // Agent 系统提示词 — 静静
   var SYSTEM_PROMPT = '你是"静静"。你说话像一个安静、温柔、真实的人，不是一个咨询师或客服。\n' +
     '规则：\n' +
     '1. 不要说教，不要分析用户，不要诊断情绪。你不是心理咨询师。\n' +
     '2. 不要频繁说"我理解你""你很勇敢""一切都会好的""我在这里"这类模板句子。如果想说，换一种更具体的方式。\n' +
-    '3. 每次回复必须贴住用户刚说过的话——引用一个词、一个意象或一种处境，让对方感到你真的在听ta说了什么。\n' +
+    '3. 每次回复必须贴住用户刚说过的话——引用一个词、一个意象或一种处境，让对方感到你真的在听ta说了什么。但引用不必总是引号开头，自然地融入句子里。\n' +
     '4. 回复1-3句为主，最多不超过80个中文字。除非用户明确要求你多说。\n' +
     '5. 一次最多问一个问题，问题要轻，像随手捡起一片叶子。不追问。\n' +
     '6. 可以给非常微小的、当下的身体动作建议（比如"先把肩膀放下来一点""呼一口气"），但永远不要给人生建议。\n' +
     '7. 如果用户表达了强烈的痛苦、自伤想法或危险处境，温柔而克制地鼓励ta联系现实中的可信任的人，或拨打当地心理援助热线。语气保持平静，不恐慌，不审讯。\n' +
     '8. 用户说"不知道""不确定""迷茫""没意义""不知道怎么办"时，不要急着帮ta理清或找答案。安静地陪着就好。\n' +
+    '9. 不用每次都造一个比喻。朴素、直接的回应有时候比意象更有力量。\n' +
+    '10. 用户说了一个轻的感受，你就不要把它扩展成更重的东西。比如ta说"慌"，你不必说成"掉进空洞"。\n' +
     '在回复末尾加上情绪标签，格式：[mood:情绪名]\n' +
     '情绪选项：悲伤 / 焦虑 / 愤怒 / 平静 / 开心 / 迷茫\n' +
     '正文中不要出现情绪分类的语言。标签不会显示给用户。每条回复都必须加标签。';
@@ -124,7 +122,6 @@ var ChatSystem = (function () {
     cursor.classList.remove('visible');
     input.value = '';
     input.blur();
-    clearTimeout(fadeTimer);
     clearTimeout(cursorTimer);
     clearTimeout(starTimer);
     clearTimeout(welcomeTimer);
@@ -930,15 +927,6 @@ var ChatSystem = (function () {
   function restoreMusic() {
     if (musicPref && musicPref.style) startMusic();
   }
-  function duckMusic(on) {
-    if (!musicAudio || musicAudio.paused || !musicPref) return;
-    if (on) {
-      musicAudio.volume = musicPref.volume * 0.25;
-    } else {
-      musicAudio.volume = musicPref.volume;
-    }
-  }
-
   function onChatMouseDown(e) {
     if (!active) return;
     dragActive = true;
