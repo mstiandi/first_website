@@ -172,7 +172,7 @@ var AuthSystem = (function () {
         '<div class="auth-title">想让我记住你吗？</div>' +
         '<div class="auth-subtitle">登录后静静会慢慢了解你</div>' +
         '<input type="email" class="auth-input" placeholder="输入邮箱" autocomplete="email">' +
-        '<button class="auth-btn">发送验证码</button>' +
+        '<button class="auth-btn">发送登录链接</button>' +
         '<div class="auth-msg"></div>' +
         '<div class="auth-switch">使用密钥登录</div>' +
         '<div class="auth-dismiss">以后再说</div>';
@@ -271,22 +271,19 @@ var AuthSystem = (function () {
 
     supabase.auth.signInWithOtp({
       email: email,
-      options: { shouldCreateUser: true }
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
     }).then(function (res) {
       if (res.error) {
         msg.textContent = '发送失败：' + (res.error.message || '请稍后重试');
         btn.disabled = false;
-        btn.textContent = '发送验证码';
+        btn.textContent = '发送登录链接';
       } else {
         loginEmail = email;
-        loginPhase = 'code';
-        renderLoginPanel();
-        setTimeout(function () {
-          if (authPanel) {
-            var codeInput = authPanel.querySelector('.auth-code-input');
-            if (codeInput) codeInput.focus();
-          }
-        }, 150);
+        msg.textContent = '链接已发送，请查收邮件并点击登录';
+        btn.style.display = 'none';
       }
     });
   }
