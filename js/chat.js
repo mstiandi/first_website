@@ -11,6 +11,10 @@ var ChatSystem = (function () {
   // 对话历史（本地内存，不持久化）
   var conversation = [];
 
+  // 用户系统
+  var guestMessageCount = 0;
+  var conversationId = null;
+
   // 情绪追踪
   var currentMood = '平静';
   var moodTrail = [];
@@ -51,7 +55,7 @@ var ChatSystem = (function () {
     '正文中不要出现情绪分类的语言。标签不会显示给用户。每条回复都必须加标签。';
 
   // API 地址（部署后替换为 Vercel 域名）
-  var API_URL = 'https://first-website-lovat-delta.vercel.app/api/chat';
+  var API_URL = 'https://vercel-api-nu-two.vercel.app/api/chat';
 
   // 默认 provider：deepseek 或 zhipu
   var PROVIDER = 'deepseek';
@@ -65,6 +69,7 @@ var ChatSystem = (function () {
     cursor = document.getElementById('chat-cursor');
     input = document.getElementById('chat-input');
     input.setAttribute('maxlength', '500');
+    AuthSystem.init();
 
     input.addEventListener('keydown', onKeyDown);
     input.addEventListener('input', onInput);
@@ -86,9 +91,12 @@ var ChatSystem = (function () {
     active = true;
     conversation = [{ role: 'system', content: SYSTEM_PROMPT }];
     overlay.classList.add('active');
+    AudioEngine.stopAmbient();
     moodTrail = [];
     currentMood = '平静';
     applyMood('平静');
+    guestMessageCount = 0;
+    conversationId = null;
     restoreMusic();
     scheduleShootingStars();
     clearTimeout(welcomeTimer);
@@ -116,9 +124,24 @@ var ChatSystem = (function () {
   }
 
   function exit() {
+    // 触发记忆存储（登录用户）
+    var session = AuthSystem.getSession();
+    if (session && conversationId) {
+      var MEMORY_API = API_URL.replace('/api/chat', '/api/memory');
+      fetch(MEMORY_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth_token: session.access_token,
+          conversation_id: conversationId
+        })
+      }).catch(function () { /* 静默，不影响退出 */ });
+    }
+
     active = false;
     typing = false;
     conversation = [];
+    conversationId = null;
     overlay.classList.remove('active');
     cursor.classList.remove('visible');
     input.value = '';
@@ -133,6 +156,7 @@ var ChatSystem = (function () {
     cancelSpeech();
     showEmotionArc();
     fadeText.style.opacity = '0';
+    AudioEngine.resumeAmbient();
   }
 
   function startTyping() {
@@ -140,8 +164,8 @@ var ChatSystem = (function () {
     cursor.style.display = '';
     cursor.classList.add('visible');
     input.value = '';
-    input.focus();
     input.disabled = false;
+    input.focus();
     startCursorBlink();
   }
 
@@ -183,6 +207,19 @@ var ChatSystem = (function () {
   function sendMessage(text) {
     cancelSpeech();
     clearTimeout(welcomeTimer);
+
+    // Guest 消息计数
+    if (!AuthSystem.getSession()) {
+      guestMessageCount++;
+      if (guestMessageCount > 5) {
+        AuthSystem.showLoginPrompt();
+        return; // 第 6 条起阻止发送
+      }
+      if (guestMessageCount === 5) {
+        AuthSystem.showLoginPrompt(); // 第 5 条仍允许，但提示登录
+      }
+    }
+
     typing = false;
     cursor.classList.remove('visible');
     clearTimeout(cursorTimer);
@@ -213,6 +250,7 @@ var ChatSystem = (function () {
       var controller = new AbortController();
       var timeout = setTimeout(function () { controller.abort(); }, 20000);
 
+      var session = AuthSystem.getSession();
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -221,12 +259,20 @@ var ChatSystem = (function () {
           provider: PROVIDER,
           stream: true,
           temperature: 0.6,
-          max_tokens: 220
+          max_tokens: 220,
+          auth_token: session ? session.access_token : null,
+          guest_id: AuthSystem.getGuestId(),
+          conversation_id: conversationId
         }),
         signal: controller.signal
       })
       .then(function (res) {
         clearTimeout(timeout);
+        if (res.status === 402) {
+          // Guest limit reached
+          AuthSystem.showLoginPrompt();
+          return doFallback();
+        }
         if (res.status === 429) throw new Error('RATE_LIMITED');
         if (!res.ok) {
           if (res.status >= 400 && res.status < 500) throw new Error('CLIENT_ERROR');
@@ -236,6 +282,7 @@ var ChatSystem = (function () {
         if (ct.indexOf('text/event-stream') !== -1) return readStream(res);
         // 非流式回退（Vercel 函数未更新时）
         return res.json().then(function (data) {
+          if (data.conversation_id && !conversationId) conversationId = data.conversation_id;
           var raw = data.reply || '嗯。';
           var parsed = parseAIResponse(raw);
           conversation.push({ role: 'assistant', content: parsed.reply });
@@ -286,6 +333,11 @@ var ChatSystem = (function () {
               if (payload === '[DONE]') { finalizeStream(fullText); return; }
               try {
                 var chunk = JSON.parse(payload);
+                // 首条数据可能携带 conversation_id
+                if (chunk.conversation_id && !conversationId) {
+                  conversationId = chunk.conversation_id;
+                  continue;
+                }
                 var content = chunk.choices[0].delta.content;
                 if (content) {
                   fullText += content;

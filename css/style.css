@@ -600,3 +600,100 @@ canvas { display: block; }
 .star-btn.cheerful.active { box-shadow: 0 0 14px #e8d040; }
 .star-btn.melancholic { background: #68a8e0; }
 .star-btn.melancholic.active { box-shadow: 0 0 14px #68a8e0; }
+
+/* ═══════════ 登录面板 ═══════════ */
+.auth-panel {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) translateY(-4px);
+  background: rgba(10, 10, 10, 0.95);
+  border: 1px solid rgba(142, 164, 192, 0.2);
+  border-radius: 8px;
+  padding: 24px 20px 18px;
+  min-width: 280px;
+  max-width: 320px;
+  z-index: 60;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  text-align: center;
+}
+.auth-panel.open {
+  opacity: 1; pointer-events: auto;
+  transform: translate(-50%, -50%) translateY(0);
+}
+.auth-title {
+  font-size: 0.9rem;
+  color: #8ea4c0;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.auth-subtitle {
+  font-size: 0.65rem;
+  color: rgba(142, 164, 192, 0.45);
+  letter-spacing: 1.5px;
+  margin-bottom: 18px;
+  line-height: 1.6;
+}
+.auth-input {
+  display: block;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(142, 164, 192, 0.2);
+  outline: none;
+  color: #8ea4c0;
+  caret-color: #8ea4c0;
+  font-family: "Noto Serif SC", serif;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  text-align: center;
+  padding: 8px 0;
+  margin-bottom: 16px;
+  transition: border-color 0.3s;
+}
+.auth-input:focus {
+  border-bottom-color: rgba(142, 164, 192, 0.5);
+}
+.auth-input::placeholder {
+  color: rgba(142, 164, 192, 0.25);
+}
+.auth-btn {
+  display: block;
+  width: 100%;
+  background: rgba(142, 164, 192, 0.12);
+  border: 1px solid rgba(142, 164, 192, 0.25);
+  border-radius: 4px;
+  color: #8ea4c0;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.auth-btn:hover {
+  background: rgba(142, 164, 192, 0.2);
+  border-color: rgba(142, 164, 192, 0.4);
+}
+.auth-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.auth-msg {
+  font-size: 0.65rem;
+  color: rgba(142, 164, 192, 0.5);
+  margin-top: 12px;
+  min-height: 18px;
+  letter-spacing: 1px;
+}
+.auth-dismiss {
+  margin-top: 14px;
+  font-size: 0.65rem;
+  color: rgba(142, 164, 192, 0.25);
+  cursor: pointer;
+  letter-spacing: 1.5px;
+  transition: color 0.2s;
+}
+.auth-dismiss:hover {
+  color: rgba(142, 164, 192, 0.5);
+}
