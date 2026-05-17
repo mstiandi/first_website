@@ -113,5 +113,86 @@ var AudioEngine = (function () {
     });
   }
 
-  return { init: init, playOcean: playOcean, stop: stop, setVolume: setVolume, getVolume: getVolume, toggle: toggle, isPlaying: isPlaying, playChime: playChime, playResonance: playResonance };
+  // ── 场景环境音（Web Audio API，避开 autoplay 限制）──
+  var AMBIENT_FILES = [
+    'music/海浪.mp3',     // 海崖
+    'music/篝火声.mp3',   // 篝火旁
+    'music/草田.mp3',     // 草田
+    'music/森林.mp3'      // 森林
+  ];
+  var ambientBuffers = [null, null, null, null];  // 解码后的 AudioBuffer
+  var ambientSource = null;
+  var ambientGain = null;
+  var ambientVolume = 0.0;
+  var currentAmbientIdx = -1;
+  var ambientEnabled = false;  // 防止竞态：加载完成前已退出场景
+  var buffersLoaded = false;
+
+  function loadAmbientBuffers() {
+    if (buffersLoaded) return;
+    buffersLoaded = true;
+    init();
+    if (!ambientGain) {
+      ambientGain = ctx.createGain();
+      ambientGain.gain.value = ambientVolume;
+      ambientGain.connect(ctx.destination);
+    }
+    AMBIENT_FILES.forEach(function (url, i) {
+      fetch(url)
+        .then(function (r) { return r.arrayBuffer(); })
+        .then(function (buf) { return ctx.decodeAudioData(buf); })
+        .then(function (audioBuf) {
+          ambientBuffers[i] = audioBuf;
+          if (i === currentAmbientIdx && ambientEnabled) startAmbientSource(i);
+        })
+        .catch(function (e) { console.warn('Ambient load failed: ' + url, e); });
+    });
+  }
+
+  function startAmbientSource(idx) {
+    if (!ambientBuffers[idx]) return;
+    if (!ambientEnabled) return;
+    stopAmbientSource();
+    if (!ctx || ctx.state === 'closed') return;
+    if (ctx.state === 'suspended') ctx.resume();
+    ambientSource = ctx.createBufferSource();
+    ambientSource.buffer = ambientBuffers[idx];
+    ambientSource.loop = true;
+    ambientSource.connect(ambientGain);
+    ambientSource.start();
+  }
+
+  function stopAmbientSource() {
+    if (ambientSource) {
+      try { ambientSource.stop(); } catch (e) {}
+      ambientSource = null;
+    }
+  }
+
+  function playAmbient(idx) {
+    if (idx < 0 || idx >= AMBIENT_FILES.length) return;
+    if (idx === currentAmbientIdx && ambientSource) return;
+    ambientEnabled = true;
+    currentAmbientIdx = idx;
+    loadAmbientBuffers();
+    if (ambientBuffers[idx]) {
+      startAmbientSource(idx);
+    }
+  }
+
+  function stopAmbient() {
+    ambientEnabled = false;
+    stopAmbientSource();
+  }
+
+  function resumeAmbient() {
+    if (currentAmbientIdx >= 0) playAmbient(currentAmbientIdx);
+  }
+
+  function setAmbientVolume(v) {
+    ambientVolume = v;
+    if (ambientGain) ambientGain.gain.value = v;
+  }
+
+  return { init: init, playOcean: playOcean, stop: stop, setVolume: setVolume, getVolume: getVolume, toggle: toggle, isPlaying: isPlaying, playChime: playChime, playResonance: playResonance, playAmbient: playAmbient, stopAmbient: stopAmbient, resumeAmbient: resumeAmbient, setAmbientVolume: setAmbientVolume };
 })();
