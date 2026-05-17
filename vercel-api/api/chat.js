@@ -1,7 +1,7 @@
 /* Vercel Serverless Function — 代理 DeepSeek API + 记忆注入 + 用户系统 */
 
 import supabase from '../lib/supabase.js';
-import { buildMemoryContext } from '../lib/memory.js';
+import { buildMemoryContext, summarizePendingConversations } from '../lib/memory.js';
 
 // ── 简易内存限流 ──
 var rateMap = new Map();
@@ -113,6 +113,13 @@ export default async function handler(req, res) {
     if (!checkGuestLimit(guestId)) {
       return res.status(402).json({ error: 'guest_limit' });
     }
+  }
+
+  // ── 总结上次未处理的对话 ──
+  if (userId && !conversationId) {
+    try {
+      await summarizePendingConversations(userId);
+    } catch (e) { console.error('Pending summaries error:', e); }
   }
 
   // ── 记忆注入（仅登录用户）──

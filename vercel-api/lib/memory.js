@@ -192,6 +192,29 @@ export async function maybeUpdateProfile(userId) {
   }
 }
 
+// ── 处理未总结的会话（在新会话开始时调用）──
+export async function summarizePendingConversations(userId, excludeConversationId) {
+  try {
+    var query = supabase
+      .from('conversations')
+      .select('id')
+      .eq('user_id', userId)
+      .is('ended_at', null);
+    if (excludeConversationId) {
+      query = query.neq('id', excludeConversationId);
+    }
+    var { data: pending } = await query.order('started_at', { ascending: true });
+
+    if (!pending || !pending.length) return;
+
+    for (var i = 0; i < pending.length; i++) {
+      await summarizeConversation(pending[i].id, userId);
+    }
+  } catch (e) {
+    console.error('summarizePendingConversations error:', e);
+  }
+}
+
 function tokenize(text) {
   if (!text) return [];
   // 混合中英文分词：英文按空格，中文取双字组合
