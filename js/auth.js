@@ -245,10 +245,8 @@ var AuthSystem = (function () {
     btn.textContent = '登录中...';
     msg.textContent = '';
 
-    var email = 'key-' + btoa(key).substring(0, 8) + '@jingshen.internal';
-
     supabase.auth.signInWithPassword({
-      email: email,
+      email: 'owner@jingshen.internal',
       password: key
     }).then(function (res) {
       if (res.error) {
