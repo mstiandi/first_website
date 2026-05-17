@@ -1,7 +1,8 @@
 import supabase from './supabase.js';
 
-var MEMORY_SUMMARY_PROMPT = '你是一个记忆提取工具。根据以下对话，提取出2-3条简洁的记忆碎片，每条不超过50个中文字。\n' +
-  '关注：用户表达了什么情绪、聊了什么话题、有什么偏好或习惯。\n' +
+var MEMORY_SUMMARY_PROMPT = '你是一个记忆提取工具。根据以下对话，提取出2-4条简洁的记忆碎片，每条不超过40个中文字。\n' +
+  '注意：必须提取用户说的个人信息（名字、年龄、地点、职业、喜好等具体事实）。\n' +
+  '同时关注：用户表达了什么情绪、聊了什么话题、有什么偏好或习惯。\n' +
   '直接输出记忆碎片，每行一条，不要编号，不要解释。\n\n' +
   '对话内容：\n';
 
@@ -106,11 +107,14 @@ export async function buildMemoryContext(userId, currentMessage) {
 // ── 总结对话 → 记忆碎片 ──
 export async function summarizeConversation(conversationId, userId) {
   try {
-    // 标记会话结束
-    await supabase.from('conversations')
-      .update({ ended_at: new Date().toISOString() })
+    // 检查是否已处理
+    var { data: existing } = await supabase
+      .from('conversations')
+      .select('ended_at')
       .eq('id', conversationId)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (!existing || existing.ended_at) return; // 已处理或不存在
 
     // 读消息
     var { data: messages } = await supabase
@@ -120,24 +124,36 @@ export async function summarizeConversation(conversationId, userId) {
       .eq('user_id', userId)
       .order('created_at', { ascending: true });
 
-    if (!messages || messages.length < 3) return;
+    if (!messages || messages.length < 3) {
+      // 消息太少，标记结束但不总结
+      await supabase.from('conversations')
+        .update({ ended_at: new Date().toISOString() })
+        .eq('id', conversationId).eq('user_id', userId);
+      return;
+    }
 
     var dialog = messages.map(function (m) { return (m.role === 'user' ? '用户' : '静静') + '：' + m.content; }).join('\n');
     var result = await callDeepSeek(MEMORY_SUMMARY_PROMPT + '\n' + dialog.substring(0, 3000), 250);
 
-    var fragments = result.split('\n').filter(function (l) { return l.trim(); }).slice(0, 3);
-    if (!fragments.length) return;
+    var fragments = result.split('\n').filter(function (l) { return l.trim(); }).slice(0, 4);
+    if (!fragments.length) {
+      await supabase.from('conversations')
+        .update({ ended_at: new Date().toISOString() })
+        .eq('id', conversationId).eq('user_id', userId);
+      return;
+    }
 
     var rows = fragments.map(function (f) {
       return { user_id: userId, content: f.trim(), source_conversation_id: conversationId };
     });
     await supabase.from('memories').insert(rows);
 
-    // 会话摘要
+    // 会话摘要 + 标记结束
     var summary = fragments.map(function (f) { return f.trim(); }).join('；');
     await supabase.from('conversations')
-      .update({ summary: summary })
-      .eq('id', conversationId);
+      .update({ summary: summary, ended_at: new Date().toISOString() })
+      .eq('id', conversationId)
+      .eq('user_id', userId);
 
     console.log('Memory: stored', fragments.length, 'fragments for user', userId);
   } catch (e) {
