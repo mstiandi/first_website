@@ -3,6 +3,19 @@
 
   ChatSystem.init();
 
+  // 首次用户交互时激活 AudioContext（绕过浏览器 autoplay 限制）
+  // 只有用户手势触发的 AudioContext 才能正常播放
+  var audioUnlocked = false;
+  function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    AudioEngine.init();
+    // 如果已有场景但没声音，重新播放当前环境音
+    AudioEngine.resumeAmbient();
+  }
+  window.addEventListener('click', unlockAudio, { once: true });
+  window.addEventListener('keydown', unlockAudio, { once: true });
+
   // 主场景在后台静默渲染（等待 video ready 后再睁眼）
   MainScene.start();
 
@@ -13,8 +26,7 @@
     if (entranceStarted) return;
     entranceStarted = true;
 
-    AudioEngine.playOcean();
-    AudioEngine.setVolume(0);
+    AudioEngine.setAmbientVolume(0);
     rampStart = performance.now();
     rampAudio();
 
@@ -32,9 +44,9 @@
   var targetVolume = 0.3;
   function rampAudio() {
     var t = Math.min(1, (performance.now() - rampStart) / rampDuration);
-    AudioEngine.setVolume(targetVolume * (1 - Math.pow(1 - t, 3)));
+    AudioEngine.setAmbientVolume(targetVolume * (1 - Math.pow(1 - t, 3)));
     if (t < 1) requestAnimationFrame(rampAudio);
-    else AudioEngine.setVolume(targetVolume);
+    else AudioEngine.setAmbientVolume(targetVolume);
   }
 
   // ── 睁眼入场动画（复用 EyeTransition.buildEyePath）──

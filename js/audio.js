@@ -154,7 +154,11 @@ var AudioEngine = (function () {
     if (!ambientEnabled) return;
     stopAmbientSource();
     if (!ctx || ctx.state === 'closed') return;
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === 'suspended') {
+      // 等待用户交互激活 AudioContext，通过 resumeAmbient 重试
+      ctx.resume();
+      return;
+    }
     ambientSource = ctx.createBufferSource();
     ambientSource.buffer = ambientBuffers[idx];
     ambientSource.loop = true;
