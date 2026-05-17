@@ -10,6 +10,7 @@ var AuthSystem = (function () {
 
   // ── UI 元素 ──
   var authPanel = null;
+  var authBtn = null;
 
   function init() {
     if (inited) return;
@@ -32,17 +33,17 @@ var AuthSystem = (function () {
     // 监听 session 变化
     supabase.auth.onAuthStateChange(function (event, newSession) {
       session = newSession;
+      updateAuthButton();
       if (event === 'SIGNED_IN' && newSession) {
         hideLoginPrompt();
-        // 登录成功后恢复聊天
-        if (typeof ChatSystem !== 'undefined' && ChatSystem.isActive()) {
-          // 重置 guest 计数，允许继续发消息
-        }
       }
     });
 
     // 处理 magic link 回调（URL hash 中的 access_token）
     handleMagicLinkCallback();
+
+    // 创建登录按钮
+    buildAuthButton();
   }
 
   function handleMagicLinkCallback() {
@@ -88,6 +89,41 @@ var AuthSystem = (function () {
       localStorage.setItem('sanctuary_guest_id', id);
     }
     return id;
+  }
+
+  // ── 登录按钮（右上角）──
+  function buildAuthButton() {
+    authBtn = document.createElement('div');
+    authBtn.className = 'auth-btn-icon';
+    authBtn.title = '登录';
+    updateAuthButtonIcon();
+    authBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (session) {
+        // 已登录：点一下弹出确认
+        if (confirm('退出登录？')) signOut();
+      } else {
+        showLoginPrompt();
+      }
+    });
+    var overlay = document.getElementById('chat-overlay');
+    if (overlay) overlay.appendChild(authBtn);
+  }
+
+  function updateAuthButton() {
+    if (!authBtn) return;
+    updateAuthButtonIcon();
+  }
+
+  function updateAuthButtonIcon() {
+    if (!authBtn) return;
+    if (session) {
+      authBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="#40d068"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="#40d068" stroke-width="1.5"/></svg>';
+      authBtn.title = '已登录 · 点击退出';
+    } else {
+      authBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="8" r="4" fill="none" stroke="#8ea4c0" stroke-width="1.5"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7" fill="none" stroke="#8ea4c0" stroke-width="1.5"/></svg>';
+      authBtn.title = '登录';
+    }
   }
 
   // ── 登录面板 ──

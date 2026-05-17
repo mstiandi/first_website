@@ -538,6 +538,20 @@ canvas { display: block; }
 .music-btn:hover { opacity: 1 !important; }
 #chat-overlay.active .music-btn { opacity: 0.45; }
 
+/* ═══════════ 登录按钮 ═══════════ */
+.auth-btn-icon {
+  position: absolute;
+  top: 92px; right: 20px;
+  width: 28px; height: 28px;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 55;
+  transition: opacity 0.5s;
+  display: flex; align-items: center; justify-content: center;
+}
+.auth-btn-icon:hover { opacity: 1 !important; }
+#chat-overlay.active .auth-btn-icon { opacity: 0.45; }
+
 .music-panel {
   position: absolute;
   top: 112px; right: 16px;
