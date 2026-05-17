@@ -271,10 +271,7 @@ var AuthSystem = (function () {
 
     supabase.auth.signInWithOtp({
       email: email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: window.location.origin + window.location.pathname
-      }
+      options: { shouldCreateUser: true }
     }).then(function (res) {
       if (res.error) {
         msg.textContent = '发送失败：' + (res.error.message || '请稍后重试');
