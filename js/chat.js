@@ -80,6 +80,19 @@ var ChatSystem = (function () {
     window.addEventListener('mousemove', onChatMouseMove);
     window.addEventListener('mouseup', onChatMouseUp);
 
+    // 页面关闭/刷新时触发记忆保存
+    window.addEventListener('beforeunload', function () {
+      var sess = AuthSystem.getSession();
+      if (sess && conversationId) {
+        var MEMORY_API = API_URL.replace('/api/chat', '/api/memory');
+        var blob = new Blob([JSON.stringify({
+          auth_token: sess.access_token,
+          conversation_id: conversationId
+        })], { type: 'application/json' });
+        navigator.sendBeacon(MEMORY_API, blob);
+      }
+    });
+
     voicePref = loadVoicePref();
     if (voicePref && voicePref.volume == null) voicePref.volume = 1.0;
     buildVoiceSelector();
