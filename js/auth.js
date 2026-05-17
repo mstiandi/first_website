@@ -128,7 +128,7 @@ var AuthSystem = (function () {
 
   // ── 登录面板 ──
   var loginEmail = '';
-  var loginPhase = 'email'; // 'email' | 'code'
+  var loginPhase = 'email'; // 'email' | 'code' | 'key'
 
   function showLoginPrompt() {
     if (authPanel) return;
@@ -158,13 +158,23 @@ var AuthSystem = (function () {
   function renderLoginPanel() {
     if (!authPanel) return;
 
-    if (loginPhase === 'email') {
+    if (loginPhase === 'key') {
+      authPanel.innerHTML =
+        '<div class="auth-title">密钥登录</div>' +
+        '<div class="auth-subtitle">输入你的专属密钥</div>' +
+        '<input type="password" class="auth-input" placeholder="输入密钥" autocomplete="off">' +
+        '<button class="auth-btn">登录</button>' +
+        '<div class="auth-msg"></div>' +
+        '<div class="auth-switch">使用邮箱登录</div>' +
+        '<div class="auth-dismiss">以后再说</div>';
+    } else if (loginPhase === 'email') {
       authPanel.innerHTML =
         '<div class="auth-title">想让我记住你吗？</div>' +
         '<div class="auth-subtitle">登录后静静会慢慢了解你</div>' +
         '<input type="email" class="auth-input" placeholder="输入邮箱" autocomplete="email">' +
         '<button class="auth-btn">发送验证码</button>' +
         '<div class="auth-msg"></div>' +
+        '<div class="auth-switch">使用密钥登录</div>' +
         '<div class="auth-dismiss">以后再说</div>';
     } else {
       authPanel.innerHTML =
@@ -184,11 +194,14 @@ var AuthSystem = (function () {
     var input = authPanel.querySelector('.auth-input');
     var btn = authPanel.querySelector('.auth-btn');
     var msg = authPanel.querySelector('.auth-msg');
+    var switchBtn = authPanel.querySelector('.auth-switch');
     var dismiss = authPanel.querySelector('.auth-dismiss');
 
     btn.addEventListener('click', function (e) {
       e.stopPropagation();
-      if (loginPhase === 'email') {
+      if (loginPhase === 'key') {
+        loginWithKey(input, btn, msg);
+      } else if (loginPhase === 'email') {
         sendOTP(input, btn, msg);
       } else {
         verifyOTP(input, btn, msg);
@@ -202,9 +215,49 @@ var AuthSystem = (function () {
       input.addEventListener('mousedown', function (e) { e.stopPropagation(); });
     }
 
+    if (switchBtn) {
+      switchBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        loginPhase = (loginPhase === 'key') ? 'email' : 'key';
+        renderLoginPanel();
+        setTimeout(function () {
+          if (authPanel) {
+            var newInput = authPanel.querySelector('.auth-input');
+            if (newInput) newInput.focus();
+          }
+        }, 150);
+      });
+    }
+
     dismiss.addEventListener('click', function (e) {
       e.stopPropagation();
       hideLoginPrompt();
+    });
+  }
+
+  function loginWithKey(input, btn, msg) {
+    var key = input.value.trim();
+    if (!key) {
+      msg.textContent = '请输入密钥';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '登录中...';
+    msg.textContent = '';
+
+    var email = 'key-' + btoa(key).substring(0, 8) + '@jingshen.internal';
+
+    supabase.auth.signInWithPassword({
+      email: email,
+      password: key
+    }).then(function (res) {
+      if (res.error) {
+        msg.textContent = '密钥不正确';
+        btn.disabled = false;
+        btn.textContent = '登录';
+      } else {
+        hideLoginPrompt();
+      }
     });
   }
 

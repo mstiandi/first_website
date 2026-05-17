@@ -711,3 +711,14 @@ canvas { display: block; }
 .auth-dismiss:hover {
   color: rgba(142, 164, 192, 0.5);
 }
+.auth-switch {
+  margin-top: 10px;
+  font-size: 0.65rem;
+  color: rgba(142, 164, 192, 0.3);
+  cursor: pointer;
+  letter-spacing: 1.5px;
+  transition: color 0.2s;
+}
+.auth-switch:hover {
+  color: rgba(142, 164, 192, 0.55);
+}
