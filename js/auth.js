@@ -127,60 +127,17 @@ var AuthSystem = (function () {
   }
 
   // ── 登录面板 ──
+  var loginEmail = '';
+  var loginPhase = 'email'; // 'email' | 'code'
+
   function showLoginPrompt() {
-    if (authPanel) return; // 已显示
+    if (authPanel) return;
+    loginPhase = 'email';
+    loginEmail = '';
 
     authPanel = document.createElement('div');
     authPanel.className = 'auth-panel';
-    authPanel.innerHTML =
-      '<div class="auth-title">想让我记住你吗？</div>' +
-      '<div class="auth-subtitle">登录后可以和静静一直聊下去，她会慢慢了解你</div>' +
-      '<input type="email" class="auth-input" placeholder="输入邮箱" autocomplete="email">' +
-      '<button class="auth-btn">发送登录链接</button>' +
-      '<div class="auth-msg"></div>' +
-      '<div class="auth-dismiss">以后再说</div>';
-
-    var input = authPanel.querySelector('.auth-input');
-    var btn = authPanel.querySelector('.auth-btn');
-    var msg = authPanel.querySelector('.auth-msg');
-    var dismiss = authPanel.querySelector('.auth-dismiss');
-
-    btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var email = input.value.trim();
-      if (!email || email.indexOf('@') === -1) {
-        msg.textContent = '请输入有效的邮箱地址';
-        return;
-      }
-      btn.disabled = true;
-      btn.textContent = '发送中...';
-      msg.textContent = '';
-
-      supabase.auth.signInWithOtp({
-        email: email,
-        options: { shouldCreateUser: true }
-      }).then(function (res) {
-        if (res.error) {
-          msg.textContent = '发送失败，请稍后重试';
-          btn.disabled = false;
-          btn.textContent = '发送登录链接';
-        } else {
-          msg.textContent = '链接已发送，请查收邮件';
-          btn.style.display = 'none';
-        }
-      });
-    });
-
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') btn.click();
-    });
-
-    input.addEventListener('mousedown', function (e) { e.stopPropagation(); });
-
-    dismiss.addEventListener('click', function (e) {
-      e.stopPropagation();
-      hideLoginPrompt();
-    });
+    renderLoginPanel();
 
     authPanel.addEventListener('mousedown', function (e) {
       e.stopPropagation();
@@ -189,11 +146,131 @@ var AuthSystem = (function () {
     var overlay = document.getElementById('chat-overlay');
     if (overlay) overlay.appendChild(authPanel);
 
-    // 延迟显示过渡
     setTimeout(function () {
-      if (authPanel) authPanel.classList.add('open');
-      if (input) input.focus();
+      if (authPanel) {
+        authPanel.classList.add('open');
+        var input = authPanel.querySelector('.auth-input');
+        if (input) input.focus();
+      }
     }, 100);
+  }
+
+  function renderLoginPanel() {
+    if (!authPanel) return;
+
+    if (loginPhase === 'email') {
+      authPanel.innerHTML =
+        '<div class="auth-title">想让我记住你吗？</div>' +
+        '<div class="auth-subtitle">登录后静静会慢慢了解你</div>' +
+        '<input type="email" class="auth-input" placeholder="输入邮箱" autocomplete="email">' +
+        '<button class="auth-btn">发送验证码</button>' +
+        '<div class="auth-msg"></div>' +
+        '<div class="auth-dismiss">以后再说</div>';
+    } else {
+      authPanel.innerHTML =
+        '<div class="auth-title">输入验证码</div>' +
+        '<div class="auth-subtitle">已发送至 ' + escapeHTML(loginEmail) + '</div>' +
+        '<input type="text" class="auth-input auth-code-input" placeholder="6位验证码" maxlength="6" autocomplete="one-time-code" inputmode="numeric">' +
+        '<button class="auth-btn">验证</button>' +
+        '<div class="auth-msg"></div>' +
+        '<div class="auth-dismiss">取消</div>';
+    }
+
+    bindLoginEvents();
+  }
+
+  function bindLoginEvents() {
+    if (!authPanel) return;
+    var input = authPanel.querySelector('.auth-input');
+    var btn = authPanel.querySelector('.auth-btn');
+    var msg = authPanel.querySelector('.auth-msg');
+    var dismiss = authPanel.querySelector('.auth-dismiss');
+
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (loginPhase === 'email') {
+        sendOTP(input, btn, msg);
+      } else {
+        verifyOTP(input, btn, msg);
+      }
+    });
+
+    if (input) {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') btn.click();
+      });
+      input.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+    }
+
+    dismiss.addEventListener('click', function (e) {
+      e.stopPropagation();
+      hideLoginPrompt();
+    });
+  }
+
+  function sendOTP(input, btn, msg) {
+    var email = input.value.trim();
+    if (!email || email.indexOf('@') === -1) {
+      msg.textContent = '请输入有效的邮箱地址';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '发送中...';
+    msg.textContent = '';
+
+    supabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin + window.location.pathname
+      }
+    }).then(function (res) {
+      if (res.error) {
+        msg.textContent = '发送失败：' + (res.error.message || '请稍后重试');
+        btn.disabled = false;
+        btn.textContent = '发送验证码';
+      } else {
+        loginEmail = email;
+        loginPhase = 'code';
+        renderLoginPanel();
+        setTimeout(function () {
+          if (authPanel) {
+            var codeInput = authPanel.querySelector('.auth-code-input');
+            if (codeInput) codeInput.focus();
+          }
+        }, 150);
+      }
+    });
+  }
+
+  function verifyOTP(input, btn, msg) {
+    var code = input.value.trim();
+    if (code.length < 6) {
+      msg.textContent = '请输入6位验证码';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '验证中...';
+    msg.textContent = '';
+
+    supabase.auth.verifyOtp({
+      email: loginEmail,
+      token: code,
+      type: 'email'
+    }).then(function (res) {
+      if (res.error) {
+        msg.textContent = '验证码不正确或已过期';
+        btn.disabled = false;
+        btn.textContent = '验证';
+      } else {
+        // 登录成功，session 会通过 onAuthStateChange 更新
+        hideLoginPrompt();
+      }
+    });
+  }
+
+  function escapeHTML(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
   function hideLoginPrompt() {
