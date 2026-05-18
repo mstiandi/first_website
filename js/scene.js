@@ -5,7 +5,8 @@ var SCENES = [
   { path: 'videos/草田视角_web.mp4',     name: '草田',   meaning: '自由与生长' },
   { path: 'videos/森林_web.mp4',        name: '森林',   meaning: '静谧与深邃' }
 ];
-var pickedScene = SCENES[Math.floor(Math.random() * SCENES.length)];
+var pickedSceneIndex = Math.floor(Math.random() * SCENES.length);
+var pickedScene = SCENES[pickedSceneIndex];
 
 var MainScene = (function () {
   var scene, camera, renderer;
@@ -43,6 +44,7 @@ var MainScene = (function () {
   var hoveredIdx = -1;
   var selectorPanels = [];   // { mesh, frame, sceneIndex }
   var clickStartX = 0, clickStartY = 0;
+  var lastMouseX = 0;
 
   function start() {
     var oldCanvases = document.querySelectorAll('canvas');
@@ -77,6 +79,7 @@ var MainScene = (function () {
       entranceWaiting = false;
       entrancePlaying = false;
       camera.position.set(0, 0, 0);
+      AudioEngine.playAmbient(pickedSceneIndex);
       window.dispatchEvent(new Event('main-scene-ready'));
     }
     if (entranceVideo && entranceVideo.readyState >= 2) {
@@ -114,11 +117,12 @@ var MainScene = (function () {
     // ── 随机场景视频 ──
     var video = document.createElement('video');
     video.src = pickedScene.path;
+    video.preload = 'auto';
     video.autoplay = true;
     video.loop = true;
     video.muted = true;
     video.playsInline = true;
-    video.style.display = 'none';
+    video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
     document.body.appendChild(video);
     video.play();
     entranceVideo = video;
@@ -127,6 +131,7 @@ var MainScene = (function () {
     videoTex.colorSpace = THREE.SRGBColorSpace;
     videoTex.minFilter = THREE.LinearFilter;
     videoTex.magFilter = THREE.LinearFilter;
+    videoTex.generateMipmaps = false;
 
     // ── 圆柱视频面板 ──
     var videoGeo = new THREE.CylinderGeometry(radius, radius, height, 48, 1, true, thetaStart, videoArc);
@@ -174,11 +179,12 @@ var MainScene = (function () {
 
       var video = document.createElement('video');
       video.src = SCENES[i].path;
+      video.preload = 'auto';
       video.autoplay = true;
       video.loop = true;
       video.muted = true;
       video.playsInline = true;
-      video.style.display = 'none';
+      video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
       document.body.appendChild(video);
       video.play();
       selectorVideos.push(video);
@@ -187,6 +193,7 @@ var MainScene = (function () {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = false;
 
       var panelGeo = new THREE.CylinderGeometry(panelR, panelR, panelH, 36, 1, true, startAngle, panelArc);
       var uv = panelGeo.attributes.uv;
@@ -214,10 +221,11 @@ var MainScene = (function () {
     selectorTargetRotation = 0;
     selectorCamera.rotation.y = 0;
     hoveredIdx = -1;
+    AudioEngine.stopAmbient();
 
     var hint = document.getElementById('hint-text');
     if (hint) {
-      hint.textContent = '移动鼠标查看四个场景 · 点击选择 · Esc 返回';
+      hint.textContent = '拖拽鼠标旋转查看四个场景 · 点击选择 · Esc 返回';
       hint.style.opacity = '0.5';
     }
   }
@@ -228,6 +236,7 @@ var MainScene = (function () {
     currentRotation = 0;
     targetRotation = 0;
     camera.rotation.y = 0;
+    AudioEngine.playAmbient(pickedSceneIndex);
     exitSelectorCleanup();
   }
 
@@ -304,6 +313,8 @@ var MainScene = (function () {
       },
       onDone: function () {
         transitionActive = false;
+        pickedSceneIndex = idx;
+        AudioEngine.playAmbient(idx);
         exitSelectorCleanup();
       }
     });
@@ -329,11 +340,12 @@ var MainScene = (function () {
     // 创建新视频
     var newVideo = document.createElement('video');
     newVideo.src = pickedScene.path;
+    newVideo.preload = 'auto';
     newVideo.autoplay = true;
     newVideo.loop = true;
     newVideo.muted = true;
     newVideo.playsInline = true;
-    newVideo.style.display = 'none';
+    newVideo.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
     document.body.appendChild(newVideo);
     newVideo.play();
     entranceVideo = newVideo;
@@ -393,9 +405,6 @@ var MainScene = (function () {
     }
 
     if (currentMode === 'selector') {
-      if (!dragActive) {
-        selectorTargetRotation = (mouseX - 0.5) * 2 * Math.PI;
-      }
       selectorRotation += (selectorTargetRotation - selectorRotation) * 0.08;
       if (Math.abs(selectorRotation - selectorTargetRotation) < 0.0005) {
         selectorRotation = selectorTargetRotation;
@@ -470,6 +479,12 @@ var MainScene = (function () {
     if (currentMode === 'selector') {
       mouseX = Math.max(0, Math.min(1, e.clientX / window.innerWidth));
 
+      if (dragActive) {
+        var delta = e.clientX - lastMouseX;
+        selectorTargetRotation += delta * 0.008;
+        lastMouseX = e.clientX;
+      }
+
       // 射线悬停检测
       mouseNDC.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouseNDC.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -507,6 +522,7 @@ var MainScene = (function () {
       dragStartY = e.clientY;
       clickStartX = e.clientX;
       clickStartY = e.clientY;
+      lastMouseX = e.clientX;
       return;
     }
     if (ChatSystem.isActive()) return;
