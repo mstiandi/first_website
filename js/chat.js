@@ -78,7 +78,7 @@ var ChatSystem = (function () {
     '正文中不要出现情绪标签的描述。标签不会显示给用户。每条回复都必须加标签。';
 
   // API 地址（部署后替换为 Vercel 域名）
-  var API_URL = 'https://jingshen-api.3200574151.workers.dev/api/chat';
+  var API_URL = 'https://vercel-api-nu-two.vercel.app/api/chat';
 
   // 默认 provider：deepseek 或 zhipu
   var PROVIDER = 'deepseek';
