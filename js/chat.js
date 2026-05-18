@@ -123,9 +123,31 @@ var ChatSystem = (function () {
     buildMusicSelector();
   }
 
+  function getTimeContext() {
+    var now = new Date();
+    var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    var weekday = weekdays[now.getDay()];
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var timeOfDay = hour < 6 ? '凌晨' : hour < 9 ? '早晨' : hour < 12 ? '上午' : hour < 14 ? '中午' : hour < 18 ? '下午' : hour < 22 ? '晚上' : '深夜';
+    var timeStr = timeOfDay + (minute > 0 ? hour + '点' + minute + '分' : hour + '点');
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var year = now.getFullYear();
+    // 季节与节气感知
+    var seasonal = '';
+    if (month === 5 || month === 6) seasonal = '端午将至，天气渐热。六月高考临近。';
+    else if (month === 7 || month === 8) seasonal = '盛夏时节，蝉鸣不止。';
+    else if (month === 9) seasonal = '初秋，开学季。';
+    else if (month === 10 || month === 11) seasonal = '秋天，天气转凉。';
+    else if (month === 12) seasonal = '年末，冬天来了。';
+    else if (month === 1 || month === 2) seasonal = '寒冬，春节前后。';
+    return year + '年' + month + '月' + day + '日，' + weekday + timeStr + '。' + seasonal;
+  }
+
   function enter() {
     active = true;
-    conversation = [{ role: 'system', content: SYSTEM_PROMPT }];
+    conversation = [{ role: 'system', content: SYSTEM_PROMPT + '\n\n现在是' + getTimeContext() }];
     overlay.classList.add('active');
     AudioEngine.stopAmbient();
     moodTrail = [];
