@@ -361,7 +361,9 @@ var ChatSystem = (function () {
                 var content = chunk.choices[0].delta.content;
                 if (content) {
                   fullText += content;
-                  fadeText.textContent = fullText;
+                  // 实时隐藏末尾的 [mood:xxx] 标签
+                  var display = fullText.replace(/\[mood:[^\]]*\]\s*$/, '').replace(/\[[^\]]*?(?:悲伤|焦虑|愤怒|平静|开心|迷茫|温柔|坚定)[^\]]*?\]\s*$/, '').trim();
+                  fadeText.textContent = display || fullText;
                 }
               } catch(e) {}
             }
