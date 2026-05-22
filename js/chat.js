@@ -277,7 +277,7 @@ var ChatSystem = (function () {
 
     function doFetch(retryCount) {
       var controller = new AbortController();
-      var timeout = setTimeout(function () { controller.abort(); }, 20000);
+      var timeout = setTimeout(function () { controller.abort(); }, 25000);
 
       fetch(API_URL, {
         method: 'POST',
@@ -371,10 +371,15 @@ var ChatSystem = (function () {
           return pump();
         });
       }
-      return pump();
+      return pump().catch(function (err) {
+        console.warn('Stream interrupted:', err.message);
+        if (fullText) { finalizeStream(fullText); }
+        else { doFallback(); }
+      });
     }
 
     function finalizeStream(rawText) {
+      if (!rawText) return;
       var parsed = parseAIResponse(rawText);
       conversation.push({ role: 'assistant', content: parsed.reply });
       fadeText.textContent = parsed.reply;
