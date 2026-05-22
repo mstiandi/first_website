@@ -382,22 +382,25 @@ var ChatSystem = (function () {
     }
 
     function finishReply(reply) {
+      // 正常聊天语速: ~300字/分钟 ≈ 5字/秒 → 200ms/字, 最少 3s
+      var readTime = Math.max(3000, reply.length * 200);
+      var done = false;
+      function cleanupOnce() {
+        if (done) return;
+        done = true;
+        if (active) doFadeDown();
+      }
+
       var utter = speak(reply);
-      var maxReadTime = Math.max(3000, reply.length * 85);
       if (utter) {
-        var done = false;
-        function onDone() {
-          if (done) return;
-          done = true;
-          if (active) doFadeDown();
-        }
-        utter.onend = onDone;
-        utter.onerror = onDone;
-        // 超时兜底：防止 onend 不触发
-        setTimeout(onDone, maxReadTime);
+        utter.onend = function () { cleanupOnce(); };
+        utter.onerror = function () { cleanupOnce(); };
+        // 朗读兜底: readTime
+        setTimeout(cleanupOnce, readTime);
+        // 极端安全兜底: 60s
+        setTimeout(cleanupOnce, 60000);
       } else {
-        var readTime = Math.max(2000, reply.length * 80);
-        setTimeout(function () { if (active) doFadeDown(); }, readTime);
+        setTimeout(cleanupOnce, readTime);
       }
     }
   }
