@@ -1,16 +1,26 @@
-/* Vercel Serverless Function — 代理 DeepSeek API + 记忆注入 + 用户系统 */
+/* Vercel Serverless — AI 聊天 API v2
+   无登录、免费使用、每用户每日 20 轮、流式 SSE 代理 */
 
-import supabase from '../lib/supabase.js';
-import { buildMemoryContext, summarizePendingConversations } from '../lib/memory.js';
-
-// ── 简易内存限流 ──
-var rateMap = new Map();
+// ── 简易内存限流 (Vercel 热实例复用) ──
+var rateMap = new Map();   // 15 req/min per IP
+var dailyMap = new Map();  // 20 msg/day per guest_id
 var lastCleanup = 0;
+
+var DAILY_LIMIT = 20;
+var DAILY_WINDOW = 86400000; // 24h
 
 function getIP(req) {
   var fwd = req.headers['x-forwarded-for'];
   if (fwd) return fwd.split(',')[0].trim();
   return req.socket.remoteAddress || 'unknown';
+}
+
+function getGuestId(req) {
+  try {
+    var body = req.body;
+    if (body && body.guest_id) return body.guest_id;
+  } catch (e) {}
+  return null;
 }
 
 function checkRate(ip) {
@@ -26,31 +36,30 @@ function checkRate(ip) {
   return true;
 }
 
-function cleanupRateMap() {
+function checkDaily(guestId) {
+  if (!guestId) return true; // 无 guest_id 时放行（极端情况）
+  var now = Date.now();
+  var entry = dailyMap.get(guestId);
+  if (!entry || now > entry.resetTime) {
+    entry = { count: 1, resetTime: now + DAILY_WINDOW };
+    dailyMap.set(guestId, entry);
+    return true;
+  }
+  if (entry.count >= DAILY_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
+function cleanupMaps() {
   var now = Date.now();
   if (now - lastCleanup < 60000) return;
   lastCleanup = now;
-  rateMap.forEach(function (entry, ip) {
-    if (now > entry.resetTime) rateMap.delete(ip);
+  rateMap.forEach(function (entry, key) {
+    if (now > entry.resetTime) rateMap.delete(key);
   });
-}
-
-// ── Guest 限制（模块级 Map，冷启动清零）──
-var guestCounts = new Map();
-var GUEST_LIMIT = 5;
-var GUEST_WINDOW = 3600000; // 1 小时
-
-function checkGuestLimit(guestId) {
-  var now = Date.now();
-  var entry = guestCounts.get(guestId);
-  if (!entry || now > entry.resetTime) {
-    entry = { count: 1, resetTime: now + GUEST_WINDOW };
-    guestCounts.set(guestId, entry);
-    return true;
-  }
-  if (entry.count >= GUEST_LIMIT) return false;
-  entry.count++;
-  return true;
+  dailyMap.forEach(function (entry, key) {
+    if (now > entry.resetTime) dailyMap.delete(key);
+  });
 }
 
 export default async function handler(req, res) {
@@ -64,151 +73,108 @@ export default async function handler(req, res) {
 
   // 限流
   var ip = getIP(req);
-  cleanupRateMap();
+  cleanupMaps();
   if (!checkRate(ip)) {
     return res.status(429).json({ error: 'Too many requests' });
   }
 
-  var body = req.body || {};
-  var messages = body.messages;
-  var provider = body.provider;
-  var stream = body.stream;
-  var authToken = body.auth_token;
-  var guestId = body.guest_id;
-  var conversationId = body.conversation_id;
-
-  // 输入校验
-  if (!messages || !Array.isArray(messages) || !messages.length) {
-    return res.status(400).json({ error: 'Empty messages' });
-  }
-  if (messages.length > 30) {
-    return res.status(400).json({ error: 'Too many messages' });
-  }
-  var hasUser = false;
-  for (var i = 0; i < messages.length; i++) {
-    var msg = messages[i];
-    if (!msg.role || !msg.content || typeof msg.content !== 'string') {
-      return res.status(400).json({ error: 'Invalid message' });
-    }
-    if (msg.content.length > 2000) {
-      return res.status(400).json({ error: 'Message too long' });
-    }
-    if (msg.role === 'user') hasUser = true;
-  }
-  if (!hasUser) {
-    return res.status(400).json({ error: 'No user message' });
-  }
-
-  // ── 用户认证 ──
-  var userId = null;
-  if (authToken) {
-    try {
-      var { data: authData, error: authError } = await supabase.auth.getUser(authToken);
-      if (!authError && authData && authData.user) userId = authData.user.id;
-    } catch (e) { /* token 无效，按 guest 处理 */ }
-  }
-
-  // ── Guest 限制 ──
-  if (!userId && guestId) {
-    if (!checkGuestLimit(guestId)) {
-      return res.status(402).json({ error: 'guest_limit' });
-    }
-  }
-
-  // ── 总结上次未处理的对话 ──
-  if (userId && !conversationId) {
-    try {
-      await summarizePendingConversations(userId);
-    } catch (e) { console.error('Pending summaries error:', e); }
-  }
-
-  // ── 记忆注入（仅登录用户）──
-  if (userId && messages.length > 0) {
-    try {
-      // 找到最新的 user 消息用于关键词匹配
-      var lastUserMsg = '';
-      for (var u = messages.length - 1; u >= 0; u--) {
-        if (messages[u].role === 'user') { lastUserMsg = messages[u].content; break; }
-      }
-      var memoryCtx = await buildMemoryContext(userId, lastUserMsg);
-      if (memoryCtx) {
-        // 找到 system 消息并追加
-        for (var s = 0; s < messages.length; s++) {
-          if (messages[s].role === 'system') {
-            messages[s] = { role: 'system', content: messages[s].content + memoryCtx };
-            break;
-          }
-        }
-      }
-    } catch (e) { console.error('Memory injection error:', e); }
-  }
-
-  // ── 选择 API 提供商 ──
-  var apiKey = provider === 'zhipu'
-    ? process.env.ZHIPU_API_KEY
-    : process.env.DEEPSEEK_API_KEY;
-
-  var apiUrl = provider === 'zhipu'
-    ? 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
-    : 'https://api.deepseek.com/v1/chat/completions';
-
-  var model = provider === 'zhipu' ? 'glm-4-flash' : 'deepseek-chat';
-
-  // ── 在调 AI 前创建 conversation（如需要）──
-  var convId = conversationId;
-  if (userId && !convId) {
-    try {
-      var { data: newConv, error: convErr } = await supabase
-        .from('conversations')
-        .insert({ user_id: userId })
-        .select('id')
-        .single();
-      if (!convErr && newConv) convId = newConv.id;
-    } catch (e) { /* 非致命 */ }
-  }
-
-  // ── 存储用户消息 ──
-  if (userId && convId) {
-    var userMsg = messages.filter(function (m) { return m.role === 'user'; }).pop();
-    if (userMsg) {
-      try {
-        await supabase.from('messages').insert({
-          conversation_id: convId,
-          user_id: userId,
-          role: 'user',
-          content: userMsg.content
-        });
-      } catch (e) { /* 非致命 */ }
-    }
-  }
-
-  // ── 调上游 API ──
-  var timeout;
   try {
-    var controller = new AbortController();
-    timeout = setTimeout(function () { controller.abort(); }, 20000);
+    var body = req.body || {};
+    var messages = body.messages;
 
-    var resp = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: messages,
-        max_tokens: body.max_tokens || 220,
-        temperature: body.temperature != null ? body.temperature : 0.6,
-        stream: !!stream
-      }),
-      signal: controller.signal
-    });
+    // 输入校验
+    if (!messages || !Array.isArray(messages) || !messages.length) {
+      return res.status(400).json({ error: 'Empty messages' });
+    }
+    if (messages.length > 20) {
+      messages = messages.slice(-20);
+    }
+    var hasUser = false;
+    for (var i = 0; i < messages.length; i++) {
+      var msg = messages[i];
+      if (!msg.role || !msg.content || typeof msg.content !== 'string') {
+        return res.status(400).json({ error: 'Invalid message' });
+      }
+      if (msg.content.length > 2000) {
+        return res.status(400).json({ error: 'Message too long' });
+      }
+      if (msg.role === 'user') hasUser = true;
+    }
+    if (!hasUser) {
+      return res.status(400).json({ error: 'No user message' });
+    }
 
-    clearTimeout(timeout);
+    // 每日限额（基于 guest_id，回退 IP）
+    var guestId = getGuestId(req);
+    if (!checkDaily(guestId || ip)) {
+      return res.status(402).json({ error: 'daily_limit' });
+    }
 
-    if (!resp.ok) {
-      console.error('API error:', resp.status);
-      return res.status(resp.status).json({ error: 'Upstream error' });
+    // ── 选择 API 提供商 ──
+    var provider = body.provider || 'deepseek';
+    var apiKey = provider === 'zhipu'
+      ? process.env.ZHIPU_API_KEY
+      : process.env.DEEPSEEK_API_KEY;
+    var apiUrl = provider === 'zhipu'
+      ? 'https://open.bigmodel.cn/api/paas/v4/chat/completions'
+      : 'https://api.deepseek.com/v1/chat/completions';
+    var model = provider === 'zhipu' ? 'glm-4-flash' : 'deepseek-chat';
+    var stream = body.stream !== false;
+
+    // ── 调上游 API（带重试：502/503/504/429）──
+    var maxRetries = 2;
+    var upstreamRes = null;
+
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      if (attempt > 0) {
+        var backoff = Math.pow(2, attempt) * 1000;
+        console.warn('Upstream retry ' + attempt + '/' + maxRetries + ' after ' + backoff + 'ms');
+        await new Promise(function (r) { setTimeout(r, backoff); });
+      }
+
+      var controller = new AbortController();
+      var timeout = setTimeout(function () { controller.abort(); }, 25000);
+
+      try {
+        upstreamRes = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey
+          },
+          body: JSON.stringify({
+            model: model,
+            messages: messages,
+            max_tokens: Math.min(body.max_tokens || 220, 500),
+            temperature: body.temperature != null ? Math.min(body.temperature, 1.0) : 0.6,
+            stream: stream
+          }),
+          signal: controller.signal
+        });
+      } catch (fetchErr) {
+        if (fetchErr.name === 'AbortError') {
+          console.error('Upstream timeout (attempt ' + (attempt + 1) + ')');
+        }
+        upstreamRes = null;
+      }
+
+      clearTimeout(timeout);
+
+      if (!upstreamRes) continue;
+      if (upstreamRes.ok || (upstreamRes.status !== 503 && upstreamRes.status !== 502 && upstreamRes.status !== 504 && upstreamRes.status !== 429)) {
+        break;
+      }
+      console.error('Upstream error:', upstreamRes.status, '(attempt ' + (attempt + 1) + ')');
+    }
+
+    if (!upstreamRes || !upstreamRes.ok) {
+      var statusCode = upstreamRes ? upstreamRes.status : 504;
+      console.error('Upstream exhausted retries, status:', statusCode);
+      if (stream) {
+        try { res.write('data: ' + JSON.stringify({ error: 'ai_error', code: statusCode }) + '\n\n'); } catch (e) {}
+        return res.end();
+      }
+      return res.status(statusCode).json({ error: 'Upstream error' });
     }
 
     // ── 流式转发 ──
@@ -218,15 +184,12 @@ export default async function handler(req, res) {
       res.setHeader('Connection', 'keep-alive');
       res.setHeader('X-Accel-Buffering', 'no');
 
-      // 首条数据携带 conversation_id
-      if (convId) {
-        res.write('data: ' + JSON.stringify({ conversation_id: convId }) + '\n\n');
-      }
+      // 心跳占位，防止 DeepSeek 慢响应时代理判定超时
+      res.write(': heartbeat\n\n');
 
-      var reader = resp.body.getReader();
+      var reader = upstreamRes.body.getReader();
       var decoder = new TextDecoder();
       var buf = '';
-      var fullReply = '';
 
       try {
         while (true) {
@@ -242,18 +205,6 @@ export default async function handler(req, res) {
             }
             res.write('data: [DONE]\n\n');
             res.end();
-
-            // 存储 assistant 回复
-            if (userId && convId && fullReply) {
-              try {
-                await supabase.from('messages').insert({
-                  conversation_id: convId,
-                  user_id: userId,
-                  role: 'assistant',
-                  content: fullReply
-                });
-              } catch (e) { /* 非致命 */ }
-            }
             break;
           }
           var text = decoder.decode(result.value, { stream: true });
@@ -262,65 +213,22 @@ export default async function handler(req, res) {
           buf = parts.pop() || '';
           for (var k = 0; k < parts.length; k++) {
             if (parts[k].trim()) {
-              // 累积完整回复文本
-              try {
-                var lines2 = parts[k].split('\n');
-                for (var l = 0; l < lines2.length; l++) {
-                  if (lines2[l].indexOf('data: ') === 0) {
-                    var payload = lines2[l].substring(6);
-                    if (payload !== '[DONE]') {
-                      var chunk = JSON.parse(payload);
-                      var content = chunk.choices[0].delta.content;
-                      if (content) fullReply += content;
-                    }
-                  }
-                }
-              } catch (e) {}
               res.write(parts[k] + '\n\n');
             }
           }
         }
       } catch (e) {
         console.error('Stream error:', e);
-        // 即使流中断也尝试存储已获取的回复
-        if (userId && convId && fullReply) {
-          try {
-            await supabase.from('messages').insert({
-              conversation_id: convId,
-              user_id: userId,
-              role: 'assistant',
-              content: fullReply
-            });
-          } catch (e2) { /* 非致命 */ }
-        }
         res.end();
       }
       return;
     }
 
     // ── 非流式 ──
-    var data = await resp.json();
-    var reply = data.choices[0].message.content;
-
-    // 存储 assistant 回复
-    if (userId && convId) {
-      try {
-        await supabase.from('messages').insert({
-          conversation_id: convId,
-          user_id: userId,
-          role: 'assistant',
-          content: reply
-        });
-      } catch (e) { /* 非致命 */ }
-    }
-
-    return res.status(200).json({ reply: reply, conversation_id: convId });
+    var data = await upstreamRes.json();
+    return res.status(200).json({ reply: data.choices[0].message.content });
   } catch (e) {
-    if (timeout) clearTimeout(timeout);
-    if (e.name === 'AbortError') {
-      return res.status(504).json({ error: 'Upstream timeout' });
-    }
-    console.error('Proxy error:', e);
+    console.error('Chat API error:', e);
     return res.status(500).json({ error: 'Internal error' });
   }
 }
