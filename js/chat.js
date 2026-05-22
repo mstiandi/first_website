@@ -393,13 +393,13 @@ var ChatSystem = (function () {
 
       var utter = speak(reply);
       if (utter) {
+        // TTS 朗读: 文字消失 = 音频播完 (同步)
         utter.onend = function () { cleanupOnce(); };
-        utter.onerror = function () { cleanupOnce(); };
-        // 朗读兜底: readTime
-        setTimeout(cleanupOnce, readTime);
+        utter.onerror = function () { setTimeout(cleanupOnce, readTime); };
         // 极端安全兜底: 60s
         setTimeout(cleanupOnce, 60000);
       } else {
+        // 静默: 按阅读速度
         setTimeout(cleanupOnce, readTime);
       }
     }
