@@ -1,0 +1,291 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Aura Logo" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Aura Logo" [ref=e9]
+        - navigation [ref=e10]:
+          - link "CREATE" [ref=e11] [cursor=pointer]:
+            - /url: /create
+          - link "TEMPLATES" [ref=e12] [cursor=pointer]:
+            - /url: /browse/components
+          - link "COMPONENTS" [ref=e13] [cursor=pointer]:
+            - /url: /components
+          - link "ASSETS" [ref=e14] [cursor=pointer]:
+            - /url: /assets
+          - link "SKILLS" [ref=e15] [cursor=pointer]:
+            - /url: /skills
+          - link "DESIGN.MD" [ref=e16] [cursor=pointer]:
+            - /url: /design-systems
+          - link "LEARN" [ref=e17] [cursor=pointer]:
+            - /url: /learn/introduction
+          - link "PRICING" [ref=e18] [cursor=pointer]:
+            - /url: /pricing
+        - link "SIGN IN" [ref=e20] [cursor=pointer]:
+          - /url: /signin
+          - button "SIGN IN" [ref=e21]
+    - main [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e27]:
+          - link "Pro starts at $25/mo, or $250 billed annually" [ref=e30] [cursor=pointer]:
+            - /url: /pricing
+            - img [ref=e31]
+            - generic [ref=e34]: Pro starts at $25/mo, or $250 billed annually
+            - generic:
+              - generic:
+                - img
+          - heading "Create beautiful designs" [level=1] [ref=e36]:
+            - generic [ref=e37]:
+              - generic [ref=e38]: Create
+              - generic [ref=e39]: beautiful
+              - generic [ref=e40]: designs
+        - generic [ref=e41]:
+          - paragraph [ref=e45]:
+            - generic [ref=e46]: Generate
+            - generic [ref=e47]: top-tier
+            - generic [ref=e48]: landing
+            - generic [ref=e49]: pages
+            - generic [ref=e50]: in
+            - generic [ref=e51]: seconds.
+            - link "Watch video." [ref=e52] [cursor=pointer]:
+              - /url: /learn/introduction
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - textbox [ref=e60]
+              - generic:
+                - generic:
+                  - generic: C
+                  - generic: r
+                  - generic: e
+                  - generic: a
+                  - generic: t
+                  - generic: e
+                  - generic: a
+                  - generic: l
+                  - generic: a
+                  - generic: "n"
+                  - generic: d
+                  - generic: i
+                  - generic: "n"
+                  - generic: g
+                  - generic: p
+                  - generic: a
+                  - generic: g
+                  - generic: e
+                  - generic: f
+                  - generic: o
+                  - generic: r
+                  - generic: a
+                  - generic: c
+                  - generic: a
+                  - generic: l
+                  - generic: e
+                  - generic: "n"
+                  - generic: d
+                  - generic: a
+                  - generic: r
+                  - generic: a
+                  - generic: p
+                  - generic: p
+                  - generic: t
+                  - generic: h
+                  - generic: a
+                  - generic: t
+                  - generic: h
+                  - generic: e
+                  - generic: l
+                  - generic: p
+                  - generic: s
+                  - generic: d
+                  - generic: e
+                  - generic: s
+                  - generic: i
+                  - generic: g
+                  - generic: "n"
+                  - generic: t
+                  - generic: e
+                  - generic: a
+                  - generic: m
+                  - generic: s
+                  - generic: p
+                  - generic: l
+                  - generic: a
+                  - generic: "n"
+                  - generic: l
+                  - generic: a
+                  - generic: u
+                  - generic: "n"
+                  - generic: c
+                  - generic: h
+                  - generic: e
+                  - generic: s
+            - generic [ref=e61]:
+              - button "Open Prompt Builder" [ref=e62] [cursor=pointer]:
+                - img [ref=e63]
+              - button "Design System" [ref=e66] [cursor=pointer]:
+                - img [ref=e67]
+                - generic [ref=e73]: Design System
+              - button "Gemini 3.1 Pro" [ref=e74] [cursor=pointer]:
+                - text: Gemini 3.1 Pro
+                - img [ref=e75]
+              - button "Reference design systems, components, and templates" [ref=e77] [cursor=pointer]:
+                - img [ref=e78]
+              - button "Attach Files (Max 2)" [ref=e81] [cursor=pointer]:
+                - img [ref=e82]
+              - button "Import website URL" [ref=e84] [cursor=pointer]:
+                - img [ref=e85]
+              - button "Import from Figma" [ref=e88] [cursor=pointer]:
+                - img [ref=e89]
+            - button [disabled] [ref=e96]:
+              - img [ref=e97]
+    - contentinfo [ref=e334]:
+      - button "Scroll to top" [ref=e335] [cursor=pointer]:
+        - img [ref=e336]
+      - generic [ref=e338]:
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - img "Aura Logo" [ref=e342]
+            - paragraph [ref=e343]: AI landing page builder that creates stunning designs in seconds. No design skills needed. Export to HTML & Figma. Trusted by 166,000+ users worldwide.
+          - generic [ref=e344]:
+            - generic [ref=e345]:
+              - heading "PRODUCT" [level=3] [ref=e346]
+              - list [ref=e347]:
+                - listitem [ref=e348]:
+                  - link "Create" [ref=e349] [cursor=pointer]:
+                    - /url: /create
+                    - text: Create
+                - listitem [ref=e350]:
+                  - link "Templates" [ref=e351] [cursor=pointer]:
+                    - /url: /browse
+                    - text: Templates
+                - listitem [ref=e352]:
+                  - link "Components" [ref=e353] [cursor=pointer]:
+                    - /url: /components
+                    - text: Components
+                - listitem [ref=e354]:
+                  - link "Assets" [ref=e355] [cursor=pointer]:
+                    - /url: /assets
+                    - text: Assets
+                - listitem [ref=e356]:
+                  - link "Pricing" [ref=e357] [cursor=pointer]:
+                    - /url: /pricing
+                    - text: Pricing
+                - listitem [ref=e358]:
+                  - link "Changelog" [ref=e359] [cursor=pointer]:
+                    - /url: /changelog
+                    - text: Changelog
+            - generic [ref=e360]:
+              - heading "RESOURCES" [level=3] [ref=e361]
+              - list [ref=e362]:
+                - listitem [ref=e363]:
+                  - link "Introduction" [ref=e364] [cursor=pointer]:
+                    - /url: /learn/tips-for-prompting
+                    - text: Introduction
+                - listitem [ref=e365]:
+                  - link "How to Prompt" [ref=e366] [cursor=pointer]:
+                    - /url: /learn/how-to-prompt
+                    - text: How to Prompt
+                - listitem [ref=e367]:
+                  - link "How to Edit" [ref=e368] [cursor=pointer]:
+                    - /url: /learn/how-to-design
+                    - text: How to Edit
+                - listitem [ref=e369]:
+                  - link "SEO Settings" [ref=e370] [cursor=pointer]:
+                    - /url: /learn/seo-settings
+                    - text: SEO Settings
+                - listitem [ref=e371]:
+                  - link "Sell Templates" [ref=e372] [cursor=pointer]:
+                    - /url: /sell-templates
+                    - text: Sell Templates
+                - listitem [ref=e373]:
+                  - link "Affiliates" [ref=e374] [cursor=pointer]:
+                    - /url: /affiliates
+                    - text: Affiliates
+                - listitem [ref=e375]:
+                  - link "FAQ" [ref=e376] [cursor=pointer]:
+                    - /url: /learn/faq
+                    - text: FAQ
+            - generic [ref=e377]:
+              - heading "WHAT WE USE" [level=3] [ref=e378]
+              - list [ref=e379]:
+                - listitem [ref=e380]:
+                  - link "Mobbin" [ref=e381] [cursor=pointer]:
+                    - /url: https://mobbin.com/?via=designcode
+                    - text: Mobbin
+                - listitem [ref=e382]:
+                  - link "Screen Studio" [ref=e383] [cursor=pointer]:
+                    - /url: https://www.screen.studio/?aff=BB6w6
+                    - text: Screen Studio
+                - listitem [ref=e384]:
+                  - link "Courses" [ref=e385] [cursor=pointer]:
+                    - /url: https://designcode.io
+                    - text: Courses
+                - listitem [ref=e386]:
+                  - link "UI Kit" [ref=e387] [cursor=pointer]:
+                    - /url: https://designcodeui.com
+                    - text: UI Kit
+                - listitem [ref=e388]:
+                  - link "Video Editor" [ref=e389] [cursor=pointer]:
+                    - /url: https://dreamcut.ai
+                    - text: Video Editor
+                - listitem [ref=e390]:
+                  - link "Mockups" [ref=e391] [cursor=pointer]:
+                    - /url: https://angle.sh
+                    - text: Mockups
+            - generic [ref=e392]:
+              - heading "CONNECT" [level=3] [ref=e393]
+              - list [ref=e394]:
+                - listitem [ref=e395]:
+                  - link "Privacy" [ref=e396] [cursor=pointer]:
+                    - /url: /privacy
+                    - text: Privacy
+                - listitem [ref=e397]:
+                  - link "Terms" [ref=e398] [cursor=pointer]:
+                    - /url: /terms
+                    - text: Terms
+                - listitem [ref=e399]:
+                  - link "Support" [ref=e400] [cursor=pointer]:
+                    - /url: mailto:meng@designcode.io
+                    - text: Support
+                - listitem [ref=e401]:
+                  - link "Report Issue" [ref=e402] [cursor=pointer]:
+                    - /url: mailto:meng@designcode.io
+                    - text: Report Issue
+                - listitem [ref=e403]:
+                  - link "LinkedIn" [ref=e404] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/in/mengto
+                    - text: LinkedIn
+                - listitem [ref=e405]:
+                  - link "X" [ref=e406] [cursor=pointer]:
+                    - /url: https://x.com/mengto
+                    - text: X
+        - generic [ref=e407]:
+          - generic [ref=e408]:
+            - paragraph [ref=e409]:
+              - text: © 2026 Aura. All rights reserved.
+              - link "Made with Cursor" [ref=e410] [cursor=pointer]:
+                - /url: http://designcode.io/cursor
+              - text: .
+            - generic [ref=e411]:
+              - button "Light mode" [ref=e413] [cursor=pointer]:
+                - img [ref=e414]
+              - button "System theme" [ref=e420] [cursor=pointer]:
+                - img [ref=e421]
+              - button "Dark mode" [ref=e423] [cursor=pointer]:
+                - img [ref=e424]
+          - generic [ref=e426]:
+            - link "Twitter" [ref=e427] [cursor=pointer]:
+              - /url: https://x.com/mengto
+              - generic [ref=e428]: Twitter
+              - img [ref=e429]
+            - link "YouTube" [ref=e431] [cursor=pointer]:
+              - /url: https://youtube.com/@designcodeteam
+              - generic [ref=e432]: YouTube
+              - img [ref=e433]
+            - link "LinkedIn" [ref=e436] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/mengto
+              - generic [ref=e437]: LinkedIn
+              - img [ref=e438]
+  - region "Notifications (F8)":
+    - list

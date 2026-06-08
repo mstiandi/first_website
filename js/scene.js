@@ -81,6 +81,7 @@ var MainScene = (function () {
       camera.position.set(0, 0, 0);
       AudioEngine.playAmbient(pickedSceneIndex);
       window.dispatchEvent(new Event('main-scene-ready'));
+      preloadSelectorVideos();  // v28: 入场就绪后立即后台加载选择器视频
     }
     if (entranceVideo && entranceVideo.readyState >= 2) {
       beginEntrance();
@@ -604,7 +605,6 @@ var MainScene = (function () {
       camera.rotation.set(0, 0, 0);
       currentRotation = 0;
       targetRotation = 0;
-      preloadSelectorVideos();  // v27: 入场结束后后台加载选择器视频
     }
   }
 

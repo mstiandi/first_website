@@ -11,18 +11,32 @@ export default async function handler(req, res) {
 
   var body = req.body || {};
   var authToken = body.auth_token;
+  var directUserId = body.user_id;
   var conversationId = body.conversation_id;
 
   if (!conversationId) {
     return res.status(400).json({ error: 'Missing conversation_id' });
   }
 
-  var userId = null;
-  if (authToken) {
+  var userId = directUserId || null;
+
+  // 兼容 web 端 JWT
+  if (!userId && authToken) {
     try {
       var { data: { user }, error } = await supabase.auth.getUser(authToken);
       if (!error && user) userId = user.id;
     } catch (e) { /* invalid token, ignore */ }
+  }
+
+  // 解析 guest UUID → 真实 profile ID
+  if (userId && body.guest_id) {
+    try {
+      var { data: idCheck } = await supabase.from('profiles').select('id').eq('id', userId).maybeSingle();
+      if (!idCheck) {
+        var { data: guestProfile } = await supabase.from('profiles').select('id').eq('guest_id', body.guest_id).maybeSingle();
+        if (guestProfile) userId = guestProfile.id;
+      }
+    } catch (e) {}
   }
 
   if (!userId) {

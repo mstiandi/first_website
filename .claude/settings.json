@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python D:/websites/just_me/.claude/hooks/check_version.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python D:/websites/just_me/.claude/hooks/before_bash.py",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

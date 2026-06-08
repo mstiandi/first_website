@@ -1,0 +1,241 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - link "Aura Logo" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img "Aura Logo" [ref=e9]
+        - navigation [ref=e10]:
+          - link "CREATE" [ref=e11] [cursor=pointer]:
+            - /url: /create
+          - link "TEMPLATES" [ref=e12] [cursor=pointer]:
+            - /url: /browse/components
+          - link "COMPONENTS" [ref=e13] [cursor=pointer]:
+            - /url: /components
+          - link "ASSETS" [ref=e14] [cursor=pointer]:
+            - /url: /assets
+          - link "SKILLS" [ref=e15] [cursor=pointer]:
+            - /url: /skills
+          - link "DESIGN.MD" [ref=e16] [cursor=pointer]:
+            - /url: /design-systems
+          - link "LEARN" [ref=e17] [cursor=pointer]:
+            - /url: /learn/introduction
+          - link "PRICING" [ref=e18] [cursor=pointer]:
+            - /url: /pricing
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - button "Light mode" [ref=e22] [cursor=pointer]:
+              - img [ref=e23]
+            - button "System theme" [ref=e29] [cursor=pointer]:
+              - img [ref=e30]
+            - button "Dark mode" [ref=e32] [cursor=pointer]:
+              - img [ref=e33]
+          - link "SIGN IN" [ref=e35] [cursor=pointer]:
+            - /url: /signin
+            - button "SIGN IN" [ref=e36]
+    - main [ref=e37]:
+      - generic [ref=e38]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - paragraph [ref=e44]: DESIGN.md Library
+            - heading "Design systems that become prompt context" [level=1] [ref=e45]
+            - paragraph [ref=e46]: Upload or write DESIGN.md files for typography, colors, spacing, components, motion, and style rules. Aura turns those systems into reusable context for stronger generated UIs.
+            - generic [ref=e47]:
+              - button "Add DESIGN.md" [ref=e48] [cursor=pointer]:
+                - img [ref=e49]
+                - text: Add DESIGN.md
+              - button "Import from Templates" [ref=e50] [cursor=pointer]:
+                - img [ref=e51]
+                - text: Import from Templates
+          - generic [ref=e55]:
+            - paragraph [ref=e57]: Library Pulse
+            - generic [ref=e61]:
+              - img [ref=e63]
+              - img [ref=e72]
+              - img [ref=e77]
+        - generic [ref=e88]:
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - img [ref=e92]
+              - textbox "Search design systems, tokens, styles" [ref=e95]
+            - generic [ref=e96]:
+              - button "Random" [ref=e97] [cursor=pointer]:
+                - img [ref=e98]
+                - text: Random
+              - button "Popular" [ref=e104] [cursor=pointer]:
+                - img [ref=e105]
+                - text: Popular
+              - button "Recent" [ref=e107] [cursor=pointer]:
+                - img [ref=e108]
+                - text: Recent
+              - button "A-Z" [ref=e111] [cursor=pointer]:
+                - img [ref=e112]
+                - text: A-Z
+          - generic [ref=e116]:
+            - status [ref=e117]: Loading design systems
+            - article [ref=e118]:
+              - img [ref=e146]
+            - article [ref=e150]:
+              - img [ref=e178]
+            - article [ref=e182]:
+              - img [ref=e210]
+            - article [ref=e214]:
+              - img [ref=e242]
+            - article [ref=e246]:
+              - img [ref=e274]
+            - article [ref=e278]:
+              - img [ref=e306]
+            - article [ref=e310]:
+              - img [ref=e338]
+            - article [ref=e342]:
+              - img [ref=e370]
+    - contentinfo [ref=e374]:
+      - button "Scroll to top" [ref=e375] [cursor=pointer]:
+        - img [ref=e376]
+      - generic [ref=e378]:
+        - generic [ref=e379]:
+          - generic [ref=e380]:
+            - img "Aura Logo" [ref=e382]
+            - paragraph [ref=e383]: AI landing page builder that creates stunning designs in seconds. No design skills needed. Export to HTML & Figma. Trusted by 166,000+ users worldwide.
+          - generic [ref=e384]:
+            - generic [ref=e385]:
+              - heading "PRODUCT" [level=3] [ref=e386]
+              - list [ref=e387]:
+                - listitem [ref=e388]:
+                  - link "Create" [ref=e389] [cursor=pointer]:
+                    - /url: /create
+                    - text: Create
+                - listitem [ref=e390]:
+                  - link "Templates" [ref=e391] [cursor=pointer]:
+                    - /url: /browse
+                    - text: Templates
+                - listitem [ref=e392]:
+                  - link "Components" [ref=e393] [cursor=pointer]:
+                    - /url: /components
+                    - text: Components
+                - listitem [ref=e394]:
+                  - link "Assets" [ref=e395] [cursor=pointer]:
+                    - /url: /assets
+                    - text: Assets
+                - listitem [ref=e396]:
+                  - link "Pricing" [ref=e397] [cursor=pointer]:
+                    - /url: /pricing
+                    - text: Pricing
+                - listitem [ref=e398]:
+                  - link "Changelog" [ref=e399] [cursor=pointer]:
+                    - /url: /changelog
+                    - text: Changelog
+            - generic [ref=e400]:
+              - heading "RESOURCES" [level=3] [ref=e401]
+              - list [ref=e402]:
+                - listitem [ref=e403]:
+                  - link "Introduction" [ref=e404] [cursor=pointer]:
+                    - /url: /learn/tips-for-prompting
+                    - text: Introduction
+                - listitem [ref=e405]:
+                  - link "How to Prompt" [ref=e406] [cursor=pointer]:
+                    - /url: /learn/how-to-prompt
+                    - text: How to Prompt
+                - listitem [ref=e407]:
+                  - link "How to Edit" [ref=e408] [cursor=pointer]:
+                    - /url: /learn/how-to-design
+                    - text: How to Edit
+                - listitem [ref=e409]:
+                  - link "SEO Settings" [ref=e410] [cursor=pointer]:
+                    - /url: /learn/seo-settings
+                    - text: SEO Settings
+                - listitem [ref=e411]:
+                  - link "Sell Templates" [ref=e412] [cursor=pointer]:
+                    - /url: /sell-templates
+                    - text: Sell Templates
+                - listitem [ref=e413]:
+                  - link "Affiliates" [ref=e414] [cursor=pointer]:
+                    - /url: /affiliates
+                    - text: Affiliates
+                - listitem [ref=e415]:
+                  - link "FAQ" [ref=e416] [cursor=pointer]:
+                    - /url: /learn/faq
+                    - text: FAQ
+            - generic [ref=e417]:
+              - heading "WHAT WE USE" [level=3] [ref=e418]
+              - list [ref=e419]:
+                - listitem [ref=e420]:
+                  - link "Mobbin" [ref=e421] [cursor=pointer]:
+                    - /url: https://mobbin.com/?via=designcode
+                    - text: Mobbin
+                - listitem [ref=e422]:
+                  - link "Screen Studio" [ref=e423] [cursor=pointer]:
+                    - /url: https://www.screen.studio/?aff=BB6w6
+                    - text: Screen Studio
+                - listitem [ref=e424]:
+                  - link "Courses" [ref=e425] [cursor=pointer]:
+                    - /url: https://designcode.io
+                    - text: Courses
+                - listitem [ref=e426]:
+                  - link "UI Kit" [ref=e427] [cursor=pointer]:
+                    - /url: https://designcodeui.com
+                    - text: UI Kit
+                - listitem [ref=e428]:
+                  - link "Video Editor" [ref=e429] [cursor=pointer]:
+                    - /url: https://dreamcut.ai
+                    - text: Video Editor
+                - listitem [ref=e430]:
+                  - link "Mockups" [ref=e431] [cursor=pointer]:
+                    - /url: https://angle.sh
+                    - text: Mockups
+            - generic [ref=e432]:
+              - heading "CONNECT" [level=3] [ref=e433]
+              - list [ref=e434]:
+                - listitem [ref=e435]:
+                  - link "Privacy" [ref=e436] [cursor=pointer]:
+                    - /url: /privacy
+                    - text: Privacy
+                - listitem [ref=e437]:
+                  - link "Terms" [ref=e438] [cursor=pointer]:
+                    - /url: /terms
+                    - text: Terms
+                - listitem [ref=e439]:
+                  - link "Support" [ref=e440] [cursor=pointer]:
+                    - /url: mailto:meng@designcode.io
+                    - text: Support
+                - listitem [ref=e441]:
+                  - link "Report Issue" [ref=e442] [cursor=pointer]:
+                    - /url: mailto:meng@designcode.io
+                    - text: Report Issue
+                - listitem [ref=e443]:
+                  - link "LinkedIn" [ref=e444] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/in/mengto
+                    - text: LinkedIn
+                - listitem [ref=e445]:
+                  - link "X" [ref=e446] [cursor=pointer]:
+                    - /url: https://x.com/mengto
+                    - text: X
+        - generic [ref=e447]:
+          - generic [ref=e448]:
+            - paragraph [ref=e449]:
+              - text: © 2026 Aura. All rights reserved.
+              - link "Made with Cursor" [ref=e450] [cursor=pointer]:
+                - /url: http://designcode.io/cursor
+              - text: .
+            - generic [ref=e451]:
+              - button "Light mode" [ref=e453] [cursor=pointer]:
+                - img [ref=e454]
+              - button "System theme" [ref=e460] [cursor=pointer]:
+                - img [ref=e461]
+              - button "Dark mode" [ref=e463] [cursor=pointer]:
+                - img [ref=e464]
+          - generic [ref=e466]:
+            - link "Twitter" [ref=e467] [cursor=pointer]:
+              - /url: https://x.com/mengto
+              - generic [ref=e468]: Twitter
+              - img [ref=e469]
+            - link "YouTube" [ref=e471] [cursor=pointer]:
+              - /url: https://youtube.com/@designcodeteam
+              - generic [ref=e472]: YouTube
+              - img [ref=e473]
+            - link "LinkedIn" [ref=e476] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/mengto
+              - generic [ref=e477]: LinkedIn
+              - img [ref=e478]
+  - region "Notifications (F8)":
+    - list

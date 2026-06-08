@@ -1,87 +1,73 @@
 # CLAUDE.md — 精神避难所 v5
 
 ## 项目概览
-- **域名**: hzd-ms.com (GitHub Pages, 仓库 mstiandi/first_website, master 分支)
-- **技术栈**: Three.js r0.160.0 (CDN), 原生 JS (无框架), CSS
-- **入口文件**: `index.html` → `js/main.js` → `js/entrance.js` → `js/scene.js`
+- **域名**: hzd-ms.com (GitHub Pages, mstiandi/first_website, master)
+- **技术栈**: Three.js r0.160.0 (CDN), 原生 JS (IIFE 模块), 纯 CSS
 - **本地路径**: `D:/websites/just_me`
+- **本地服务**: `python -m http.server 8080`
 
-## 迭代记录（强制）
-- **每次非细节的大改动（新功能、架构变更、重要修复）** 必须在 `iterations/` 文件夹中新建一个文件
-- 文件命名: `NNN-简短描述.md`（如 `001-mvp-cylindrical-panorama.md`）
-- 使用 `_template.md` 模板，记录目标、改动、踩坑、结果
-- **这是一个强制性要求，不要等用户提醒**
-- 细节改动（改颜色、调参数、修错字）不需要迭代记录
-
-## 铁律 — 每次改动后必须做
-1. **增量版本号**: `index.html` 中 scene.js 的 `?v=N` 每次提交都要 +1，否则 CDN 缓存旧文件
-2. **浏览器验证**: 改完先用 Playwright 或实际浏览器打开域名确认生效，再报告"完成"
-3. **纹理方向**: 任何贴图（视频、图片）都必须先确认方向正确再提交。用 Canvas2D `ctx.scale(-1,1)` 预翻转是可靠方案
-4. **提交**: `git add <具体文件> && git commit -m "<描述>" && git push`，不要漏文件
-
-## 已踩过的坑 — 禁止再犯
-
-### 纹理镜像
-- **问题**: Three.js 不同渲染路径纹理方向不一致。圆柱 BackSide、scene.background、VideoTexture 各有各的处理
-- **解决**: 
-  - 圆柱视频: UV 翻转 `uv.setX(i, 1 - uv.getX(i))`
-  - scene.background: Canvas2D `ctx.scale(-1, 1)` 预翻转
-  - **不确定方向时，先用标注左右上下的测试图验证，别猜**
-
-### Three.js 旋转方向
-- camera.rotation.x **正值** = 仰天 (look UP)，**负值** = 看地面 (look DOWN)
-- camera.rotation.y **正值** = 看右边，**负值** = 看左边
-- `targetRotation = -Math.PI/2` 是看地下，不是看天上
-
-### CDN 缓存
-- GitHub Pages 会缓存 HTML 和 JS 文件
-- 每次改 scene.js 必须升 `?v=N` 版本号
-- 测试用 `https://hzd-ms.com/?r` 绕过缓存（参数值随便写）
-
-### 天空/仰天功能
-- **不要用** PlaneGeometry 或 CircleGeometry 做天空顶盖（容易被遮挡或方向错乱）
-- **直接用** `scene.background = texture` 切换背景（已验证可行）
-- 天空纹理在 `buildScene` 之前用 Canvas2D 加载并翻转好
-
-### 大文件
-- GitHub 单文件上限 100MB，超过会 push 失败
-- 视频素材用 ffmpeg 转 H.264 1080p 后再提交
-- `海崖.mp4` (121MB) 没提交，提交的是 `海崖_web.mp4` (3.9MB)
-
-### ffmpeg 视频转码
-- 8K → 1080p H.264: `ffmpeg -i input -c:v libx264 -preset fast -crf 23 -vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" -c:a aac -b:a 128k -r 30 output`
+## 文件结构
+```
+index.html              → 入口，加载 CDN + 所有 JS
+css/style.css           → 聊天覆盖层、星光、流星、提示文字
+js/main.js              → 编排：ChatSystem.init() → MainScene.start() + AudioEngine
+js/scene.js             → 主场景：圆柱视频面板(海崖/家乡双击切换) + 黑面板 + 无人机入场
+js/chat.js              → 无痕聊天：下拖进入/上拖退出，AI对话，文字浮现/消失
+js/audio.js             → Web Audio API：海浪环境音 + 风铃(chime) + 孤星(resonance)
+videos/海崖_web.mp4     → 1080p 主场景视频
+videos/家乡.mp4         → 双击切换后的天空视频
+```
 
 ## 当前架构
 
-### 文件结构
-```
-index.html          → 入口，加载 CDN + 所有 JS
-css/style.css       → 聊天覆盖层、提示文字样式
-js/main.js          → 编排：ChatSystem.init() → EntranceAnimation.start(callback) → MainScene.start() + AudioEngine.playOcean()
-js/entrance.js      → 眼镜入场动画 (~3.8s)，独立 Three.js scene
-js/scene.js         → 主场景：圆柱视频面板 + 左黑面板 + 双击仰天
-js/chat.js          → 无痕聊天：左拖进入，文字浮现/消失，本地回声
-js/audio.js         → Web Audio API 海洋环境音
-videos/海崖_web.mp4 → 1080p H.264 海崖视频
-images/蓝天.png     → 仰天时的天空图片 (1626×1082)
-```
+### 主场景 (scene.js)
+- 圆柱半径 8，高 7，FOV 35°，相机原点在圆柱中心
+- 视频面板 90° arc（居中于背面），左黑面板 35° arc（聊天入口）
+- 两个 VideoTexture 同时播放（海崖 + 家乡），通过 `videoMat.map` 切换
+- 双击触发放置 videoMat.map 在 seaTex ↔ homeTex 之间切换
+- 入场动画：无人机落位（~4.5s ease-out 下降 + 悬停微颤 + 着地震颤）
+- 入场前静默渲染等视频就绪，避免 shader 编译卡顿
 
-### 主场景参数
-- 圆柱半径 8，高 7，FOV 35°，相机原点
-- 视频面板 90° arc，左侧黑面板 35° arc
-- 水平旋转 ±30°
-- 双击: camera.rotation.x 在 0 (坐姿) 和 +π/2 (仰天) 之间切换
-- 仰天时 scene.background = 天空纹理，坐姿时 = 黑色
+### 聊天 (chat.js)
+- 下拖 60px 进入，上拖 60px 或 Esc 退出
+- 纯黑背景 + 白色星光（box-shadow 模拟，慢速闪烁）
+- 忧郁灰蓝文字 #8ea4c0，Noto Serif SC 衬线体
+- AI API: Vercel Serverless Function 代理 DeepSeek
+- 音效: 发送=孤星轻吟(小三度)，收到=风铃(大三度)
+- 流星: 冰蓝带冲击波+楔形尾迹+飞散粒子，从上中→左中斜向划过
 
-### 交互
-- 鼠标移动 → 左右转视角
-- 双击 → 仰天/坐起
-- 左拖 70px → 进入聊天
-- 聊天中按 Esc → 退出聊天
+### 环境音 (audio.js)
+- Web Audio API 多层海浪噪声（低频+中频+泡沫）
+- 入场 4.5s 淡入到 0.3 音量
 
-## 用户偏好
-- 先验证再报告完成，不要推完代码就说"好了"
-- 方向/镜像问题必须打开浏览器确认，不准猜
-- 不要反复改同一个问题，一次想透再动手
-- 简洁回复，不要长篇总结
-- 用户是 PKU 心理学大一学生，设计品味明确，按蓝图执行即可
+## 铁律 — 每次改动必须做
+1. **升版本号**: 改哪个 JS/CSS 就升对应的 `?v=N`，否则浏览器缓存旧文件
+2. **浏览器验证**: 改完用 `http://localhost:8080` 确认生效再报告
+3. **提交**: `git add <具体文件> && git commit -m "<描述>" && git push`
+
+## 已踩过的坑
+
+### CDN 缓存
+- GitHub Pages 缓存 HTML/JS/CSS
+- 每次改动必须升对应文件的 `?v=N`
+- 测试可用 `https://hzd-ms.com/?r` 绕过
+
+### 纹理方向
+- 圆柱 BackSide 视频需要 UV 翻转: `uv.setX(i, 1 - uv.getX(i))`
+- 球体 BackSide 不需要 UV 翻转
+- 不确定方向时用测试图验证，别猜
+
+### 大文件
+- GitHub 单文件上限 100MB
+- 视频用 ffmpeg 转 H.264 1080p: `ffmpeg -i input -c:v libx264 -preset fast -crf 23 -vf "scale=1920:1080:..." -r 30 output`
+
+### 球体视频扭曲
+- 普通视频（非 360° 全景）映射到球体会产生两极漩涡
+- 躺下/仰天场景用圆柱面或直接切换纹理，不要用球体
+
+## 项目约定
+- 原生 JS，IIFE 模块模式，不引入框架
+- CSS 用 `@import` 引入 Google Fonts（放文件顶部）
+- 新功能先在 CSS 中写好样式，再在 JS 中加逻辑
+- JavaScript 中用 `var` 声明（保持现有风格一致）
+- 视频全部 autoplay + loop + muted + playsInline

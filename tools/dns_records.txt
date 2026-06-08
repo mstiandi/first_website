@@ -1,0 +1,26 @@
+DNS记录 - hzd-ms.com - Resend验证
+
+═══════════════════════════════════════════
+记录 1：TXT
+═══════════════════════════════════════════
+主机记录：resend._domainkey
+记录类型：TXT
+记录值：
+p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC27fLALUa1aG/D7l60Wl77r06Ikgm08TGCqtj1ueCvYQ709aQqUtWK5ZPhD/pYkZ4/G+fNTvsN4WWuZe0JyQwe7jvgSBra4nUw/qdQrs/CRoGis5/RuCZK7sPXASoAY5LyRbzE6XDM/mZdzzk6etluMnPFvj1+Bya+qV/kgEJK3QIDAQAB
+
+═══════════════════════════════════════════
+记录 2：TXT
+═══════════════════════════════════════════
+主机记录：send
+记录类型：TXT
+记录值：
+v=spf1 include:amazonses.com ~all
+
+═══════════════════════════════════════════
+记录 3：MX
+═══════════════════════════════════════════
+主机记录：send
+记录类型：MX
+记录值：
+feedback-smtp.us-east-1.amazonses.com
+MX优先级：10
