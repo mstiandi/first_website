@@ -5,8 +5,8 @@ var SCENES = [
   { path: 'videos/草田视角_web.mp4',     name: '草田',   meaning: '自由与生长' },
   { path: 'videos/森林_web.mp4',        name: '森林',   meaning: '静谧与深邃' }
 ];
-var pickedSceneIndex = Math.floor(Math.random() * SCENES.length);
-var pickedScene = SCENES[pickedSceneIndex];
+var pickedSceneIndex = 0;  // v27: 固定从海崖开始，不再随机，减少首帧等待
+var pickedScene = SCENES[0];
 
 var MainScene = (function () {
   var scene, camera, renderer;
@@ -167,7 +167,7 @@ var MainScene = (function () {
     var roomMat = new THREE.MeshBasicMaterial({ color: 0x05050a, side: THREE.BackSide });
     selectorScene.add(new THREE.Mesh(roomGeo, roomMat));
 
-    // 四块视频面板
+    // 四块视频面板 — v27: 先用暗色占位，视频延迟预加载
     var panelR = roomR - 0.5;
     var panelH = 4.2;
     var panelArc = 55 * Math.PI / 180;
@@ -176,6 +176,36 @@ var MainScene = (function () {
     for (var i = 0; i < 4; i++) {
       var centerAngle = frontCenter + i * Math.PI * 0.5;
       var startAngle = centerAngle - panelArc / 2;
+
+      // 占位面板 (暗色，等视频预加载后替换)
+      var panelGeo = new THREE.CylinderGeometry(panelR, panelR, panelH, 36, 1, true, startAngle, panelArc);
+      var uv = panelGeo.attributes.uv;
+      for (var j = 0; j < uv.count; j++) {
+        uv.setX(j, 1 - uv.getX(j));
+      }
+      var panelMat = new THREE.MeshBasicMaterial({ color: 0x080810, side: THREE.BackSide });
+      var panelMesh = new THREE.Mesh(panelGeo, panelMat);
+      selectorScene.add(panelMesh);
+
+      // 微光边框
+      var frameGeo = new THREE.CylinderGeometry(panelR + 0.03, panelR + 0.03, panelH + 0.12, 36, 1, true, startAngle - 0.03, panelArc + 0.06);
+      var frameMat = new THREE.MeshBasicMaterial({ color: 0x1a1a24, side: THREE.BackSide, transparent: true, opacity: 0.45 });
+      var frameMesh = new THREE.Mesh(frameGeo, frameMat);
+      selectorScene.add(frameMesh);
+
+      selectorPanels.push({ mesh: panelMesh, frame: frameMesh, sceneIndex: i });
+    }
+  }
+
+  var selectorPreloaded = false;
+
+  /* v27: 在入场动画结束后后台加载 4 个选择器视频，替换占位纹理 */
+  function preloadSelectorVideos() {
+    if (selectorPreloaded) return;
+    selectorPreloaded = true;
+
+    for (var i = 0; i < 4; i++) {
+      if (i >= selectorPanels.length) continue;
 
       var video = document.createElement('video');
       video.src = SCENES[i].path;
@@ -195,22 +225,10 @@ var MainScene = (function () {
       tex.magFilter = THREE.LinearFilter;
       tex.generateMipmaps = false;
 
-      var panelGeo = new THREE.CylinderGeometry(panelR, panelR, panelH, 36, 1, true, startAngle, panelArc);
-      var uv = panelGeo.attributes.uv;
-      for (var j = 0; j < uv.count; j++) {
-        uv.setX(j, 1 - uv.getX(j));
-      }
-      var panelMat = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
-      var panelMesh = new THREE.Mesh(panelGeo, panelMat);
-      selectorScene.add(panelMesh);
-
-      // 微光边框
-      var frameGeo = new THREE.CylinderGeometry(panelR + 0.03, panelR + 0.03, panelH + 0.12, 36, 1, true, startAngle - 0.03, panelArc + 0.06);
-      var frameMat = new THREE.MeshBasicMaterial({ color: 0x1a1a24, side: THREE.BackSide, transparent: true, opacity: 0.45 });
-      var frameMesh = new THREE.Mesh(frameGeo, frameMat);
-      selectorScene.add(frameMesh);
-
-      selectorPanels.push({ mesh: panelMesh, frame: frameMesh, sceneIndex: i });
+      // 替换占位材质
+      var oldMat = selectorPanels[i].mesh.material;
+      selectorPanels[i].mesh.material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
+      oldMat.dispose();
     }
   }
 
@@ -586,6 +604,7 @@ var MainScene = (function () {
       camera.rotation.set(0, 0, 0);
       currentRotation = 0;
       targetRotation = 0;
+      preloadSelectorVideos();  // v27: 入场结束后后台加载选择器视频
     }
   }
 
