@@ -199,37 +199,73 @@ var MainScene = (function () {
   }
 
   var selectorPreloaded = false;
+  var preloadQueue = [];
 
-  /* v27: 在入场动画结束后后台加载 4 个选择器视频，替换占位纹理 */
+  /* v31: 串行后台加载选择器视频，避免四个同时抢带宽 */
   function preloadSelectorVideos() {
     if (selectorPreloaded) return;
     selectorPreloaded = true;
 
-    for (var i = 0; i < 4; i++) {
+    // 跳过索引0（已在主场景加载），从1开始
+    for (var i = 1; i < 4; i++) {
       if (i >= selectorPanels.length) continue;
+      preloadQueue.push(i);
+    }
 
-      var video = document.createElement('video');
-      video.src = SCENES[i].path;
-      video.preload = 'auto';
-      video.autoplay = true;
-      video.loop = true;
-      video.muted = true;
-      video.playsInline = true;
-      video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
-      document.body.appendChild(video);
-      video.play();
-      selectorVideos.push(video);
+    if (preloadQueue.length === 0) return;
+    preloadNextInQueue();
+  }
 
-      var tex = new THREE.VideoTexture(video);
-      tex.colorSpace = THREE.SRGBColorSpace;
-      tex.minFilter = THREE.LinearFilter;
-      tex.magFilter = THREE.LinearFilter;
-      tex.generateMipmaps = false;
+  function preloadNextInQueue() {
+    if (preloadQueue.length === 0) return;
+    var idx = preloadQueue.shift();
 
-      // 替换占位材质
-      var oldMat = selectorPanels[i].mesh.material;
-      selectorPanels[i].mesh.material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
-      oldMat.dispose();
+    var video = document.createElement('video');
+    video.src = SCENES[idx].path;
+    video.preload = 'auto';
+    video.autoplay = true;
+    video.loop = true;
+    video.muted = true;
+    video.playsInline = true;
+    video.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none';
+    document.body.appendChild(video);
+    selectorVideos[idx] = video;
+
+    var tex = new THREE.VideoTexture(video);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+
+    var oldMat = selectorPanels[idx].mesh.material;
+    selectorPanels[idx].mesh.material = new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide });
+    oldMat.dispose();
+
+    // 当前视频有足够数据后开始加载下一个
+    video.addEventListener('canplay', function onReady() {
+      video.removeEventListener('canplay', onReady);
+      preloadNextInQueue();
+    });
+    // 兜底：15秒后无论如何开始下一个
+    setTimeout(function () {
+      if (preloadQueue.length > 0 && video.readyState < 3) {
+        preloadNextInQueue();
+      }
+    }, 15000);
+
+    video.play();
+
+    // 索引0的主场景视频直接复用，更新纹理
+    if (!selectorVideos[0] && entranceVideo) {
+      selectorVideos[0] = entranceVideo;
+      var tex0 = new THREE.VideoTexture(entranceVideo);
+      tex0.colorSpace = THREE.SRGBColorSpace;
+      tex0.minFilter = THREE.LinearFilter;
+      tex0.magFilter = THREE.LinearFilter;
+      tex0.generateMipmaps = false;
+      var old0 = selectorPanels[0].mesh.material;
+      selectorPanels[0].mesh.material = new THREE.MeshBasicMaterial({ map: tex0, side: THREE.BackSide });
+      old0.dispose();
     }
   }
 
